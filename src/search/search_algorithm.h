@@ -71,6 +71,8 @@ public:
         int bound, double max_time, const std::string &description,
         utils::Verbosity verbosity);
     virtual void print_statistics() const = 0;
+    // AE: Make this virtual? I don't think its necessary
+    void improve_plan_if_enabled();
     virtual void save_plan_if_necessary();
     /*
       Returns true only if the search algorithm finds

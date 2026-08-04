@@ -119,6 +119,13 @@ bool SearchAlgorithm::check_goal_and_set_plan(const State &state) {
     return false;
 }
 
+// AE: Helper function which improves plans if wanted.
+void SearchAlgorithm::improve_plan_if_enabled() {
+    if (found_solution()) {
+        log << "Do something i guess :)";
+    }
+}
+
 void SearchAlgorithm::save_plan_if_necessary() {
     if (found_solution()) {
         plan_manager.save_plan(get_plan(), task_proxy);

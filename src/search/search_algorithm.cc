@@ -12,6 +12,9 @@
 #include "utils/system.h"
 #include "utils/timer.h"
 
+// AE: include action elimination here
+#include "plan_improvement/action_elimination.h"
+
 #include <cassert>
 #include <iostream>
 
@@ -119,10 +122,11 @@ bool SearchAlgorithm::check_goal_and_set_plan(const State &state) {
     return false;
 }
 
-// AE: Helper function which improves plans if wanted.
+// AE: Helper function which improves plans if wanted. For now just runs ae.
 void SearchAlgorithm::improve_plan_if_enabled() {
     if (found_solution()) {
-        log << "Do something i guess :)";
+        plan = action_elimination(plan, task_proxy);
+        // cout << "here we could start to improve the plan" << "\n";
     }
 }
 

@@ -85,6 +85,7 @@ endif()
 # In the following, we include all source files, grouped into libraries with
 # dependencies among each other.
 
+# AE: Added the action elimination.cc file here
 create_fast_downward_library(
     NAME core_sources
     HELP "Core source files"
@@ -108,6 +109,7 @@ create_fast_downward_library(
         per_state_information
         per_task_information
         plan_manager
+        plan_improvement/action_elimination
         pruning_method
         search_algorithm
         search_node_info

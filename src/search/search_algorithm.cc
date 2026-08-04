@@ -123,9 +123,10 @@ bool SearchAlgorithm::check_goal_and_set_plan(const State &state) {
 }
 
 // AE: Helper function which improves plans if wanted. For now just runs ae.
+// Unnecessarily check if found solution
 void SearchAlgorithm::improve_plan_if_enabled() {
     if (found_solution()) {
-        plan = action_elimination(plan, task_proxy);
+        plan = action_elimination(plan, task_proxy, state_registry);
         // cout << "here we could start to improve the plan" << "\n";
     }
 }

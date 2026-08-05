@@ -14,7 +14,7 @@ Plan action_elimination(
     OperatorsProxy operators = task_proxy.get_operators();
     State initial_state = state_registry.get_initial_state();
     // Stores the indices of all marked actions.
-    std::set<size_t> marked_actions;
+    set<size_t> marked_actions;
     State prefix_state = initial_state;
     // AE: This is only true for action costs of 1. Remove later since its not
     // necessary. Didn't find a corresponding function rn.
@@ -68,46 +68,63 @@ Plan action_elimination(
     return reduced_plan;
 }
 
-struct StateInfo {
-    StateID id;
-    size_t index;
-    int prefix_cost;
-};
+vector<StateInfo> extract_state_info_from_plan(
+    const Plan &plan, const TaskProxy &task_proxy,
+    StateRegistry &state_registry) {
+    OperatorsProxy operators = task_proxy.get_operators();
+    State initial_state = state_registry.get_initial_state();
+    // Use a vector to store all infos about each state in the original plan.
+    vector<StateInfo> plan_states;
+    // Starts with the initial state and iterates through the plan
+    State map_state = initial_state;
+    size_t prefix_cost = 0;
+    for (size_t i = 0; i < plan.size(); i++) {
+        plan_states.push_back({map_state, i, prefix_cost});
+        OperatorProxy op = operators[plan.at(i)];
+        prefix_cost += op.get_cost();
+        map_state = state_registry.get_successor_state(map_state, op);
+    }
+    plan_states.push_back({map_state, plan.size(), prefix_cost});
+    return plan_states;
+}
 
-Plan repeated_state_elimination(
+Plan action_elimination_track_plan_states(
     const Plan &plan, const TaskProxy &task_proxy,
     StateRegistry &state_registry) {
     Plan reduced_plan = plan;
     OperatorsProxy operators = task_proxy.get_operators();
     State initial_state = state_registry.get_initial_state();
     // Stores the indices of all marked actions.
-    std::set<size_t> marked_actions;
+    set<size_t> marked_actions;
     State prefix_state = initial_state;
 
-    // Added map of ID to PlanState. In case theer are multiples there is the
-    // same state multiple times
-    std::vector<StateInfo> plan_states;
+    vector<StateInfo> plan_states =
+        extract_state_info_from_plan(plan, task_proxy, state_registry);
 
-    State map_state = initial_state;
-    int prefix_cost = 0;
-    for (size_t i = 0; i < plan.size(); i++) {
-        plan_states.push_back({map_state.get_id(), i, prefix_cost});
-        OperatorProxy op = operators[plan.at(i)];
-        prefix_cost += op.get_cost();
-        map_state = state_registry.get_successor_state(map_state, op);
-    }
     size_t i = 0;
-
     while (i < reduced_plan.size()) {
         marked_actions.clear();
         State current_state = prefix_state;
         OperatorProxy prefix_operator = operators[reduced_plan.at(i)];
         marked_actions.insert(i);
+        size_t current_cost = plan_states.at(i).prefix_cost;
         for (size_t j = i + 1; j < reduced_plan.size(); j++) {
             OperatorProxy current_operator = operators[reduced_plan.at(j)];
             if (is_applicable(current_operator, current_state)) {
                 current_state = state_registry.get_successor_state(
                     current_state, current_operator);
+                current_cost += current_operator.get_cost();
+                // We check here if we reached a state in the original plan at a
+                // cheaper prize.
+                for (size_t k = j + 2; k < plan_states.size(); k++) {
+                    if ((current_state == plan_states.at(k).state) &&
+                        (current_cost < plan_states.at(k).prefix_cost)) {
+                        cout
+                            << "Reached a state of the original plan with cheaper cost, current_cost is:"
+                            << current_cost << ", prefix_cost is: "
+                            << plan_states.at(k).prefix_cost << "\n";
+                    }
+                }
             } else {
                 marked_actions.insert(j);
             }

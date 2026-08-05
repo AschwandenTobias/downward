@@ -1,0 +1,7 @@
+[project]
+name = "action-elimination"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "lab>=8.10",
+]

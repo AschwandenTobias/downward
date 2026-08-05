@@ -88,6 +88,52 @@ vector<StateInfo> extract_state_info_from_plan(
     return plan_states;
 }
 
+// AE: The version that runs ae first and does an additional run after which
+// checks if we reconnect with states but with a cheaper prefix.
+Plan track_plan_states(
+    const Plan &plan, const TaskProxy &task_proxy,
+    StateRegistry &state_registry) {
+    Plan reduced_plan = action_elimination(plan, task_proxy, state_registry);
+    OperatorsProxy operators = task_proxy.get_operators();
+    State initial_state = state_registry.get_initial_state();
+    State prefix_state = initial_state;
+    set<size_t> marked_actions;
+
+    vector<StateInfo> plan_states =
+        extract_state_info_from_plan(reduced_plan, task_proxy, state_registry);
+
+    size_t i = 0;
+    while (i < reduced_plan.size()) {
+        State current_state = prefix_state;
+        OperatorProxy prefix_operator = operators[reduced_plan.at(i)];
+        marked_actions.insert(i);
+        size_t current_cost = plan_states.at(i).prefix_cost;
+        for (size_t j = i + 1; j < reduced_plan.size(); j++) {
+            OperatorProxy current_operator = operators[reduced_plan.at(j)];
+            if (is_applicable(current_operator, current_state)) {
+                current_state = state_registry.get_successor_state(
+                    current_state, current_operator);
+                current_cost += current_operator.get_cost();
+                for (size_t k = j + 2; k < plan_states.size(); k++) {
+                    if ((current_state == plan_states.at(k).state) &&
+                        (current_cost < plan_states.at(k).prefix_cost)) {
+                        cout
+                            << "Reached a state of the original plan with cheaper cost, current_cost is:"
+                            << current_cost << ", prefix_cost is: "
+                            << plan_states.at(k).prefix_cost << "\n";
+                    }
+                }
+            } else {
+                marked_actions.insert(j);
+            }
+        }
+        i++;
+    }
+    return reduced_plan;
+}
+
+// AE: Not sure if its worth it to finish this version rn. Might be actively
+// worse than just standart ae. Finish later!
 Plan action_elimination_track_plan_states(
     const Plan &plan, const TaskProxy &task_proxy,
     StateRegistry &state_registry) {
@@ -139,6 +185,9 @@ Plan action_elimination_track_plan_states(
                 }
             }
             reduced_plan = improved_plan;
+            // Recompute the plan_states from the reduced plan.
+            plan_states = extract_state_info_from_plan(
+                reduced_plan, task_proxy, state_registry);
         } else {
             prefix_state = state_registry.get_successor_state(
                 prefix_state, prefix_operator);

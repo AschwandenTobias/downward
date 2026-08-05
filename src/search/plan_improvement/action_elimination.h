@@ -21,5 +21,8 @@ Plan action_elimination_track_plan_states(
 std::vector<StateInfo> extract_state_info_from_plan(
     const Plan &plan, const TaskProxy &task_proxy,
     StateRegistry &state_registry);
+Plan track_plan_states(
+    const Plan &plan, const TaskProxy &task_proxy,
+    StateRegistry &state_registry);
 
 #endif

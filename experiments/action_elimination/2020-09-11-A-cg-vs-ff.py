@@ -17,7 +17,10 @@ BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
 SCP_LOGIN = "myname@myserver.com"
 REMOTE_REPOS_DIR = "/infai/username/projects"
 # If REVISION_CACHE is None, the default "./data/revision-cache/" is used.
-REVISION_CACHE = os.environ.get("DOWNWARD_REVISION_CACHE")
+#REVISION_CACHE = os.environ.get("DOWNWARD_REVISION_CACHE")
+REVISION_CACHE = (
+    os.environ.get("DOWNWARD_REVISION_CACHE") or project.DIR / "data" / "revision-cache"
+)
 if project.REMOTE:
     SUITE = project.SUITE_SATISFICING
     ENV = project.BaselSlurmEnvironment(email="my.name@myhost.ch")

@@ -5,3 +5,6 @@ __pycache__/
 /builds/
 /misc/.tox/
 /misc/autodoc/downward-xmlrpc.secret
+/experiments/action_elimination/data
+/experiments/action_elimination/README.md
+/experiments/action_elimination/.python-version

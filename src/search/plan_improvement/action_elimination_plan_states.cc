@@ -45,7 +45,7 @@ Plan ActionEliminationPlanStates::improve(
     OperatorsProxy operators = task_proxy.get_operators();
 
     bool improvement_found = true;
-    cout << "Trying now additional reductions" << "\n";
+    // cout << "Trying now additional reductions" << "\n";
     while (improvement_found) {
         improvement_found = false;
         vector<StateInfo> plan_states = extract_state_info_from_plan(
@@ -73,11 +73,11 @@ Plan ActionEliminationPlanStates::improve(
                     if (simulated_state != plan_states[k].state) {
                         continue;
                     }
-                    cout << "Am on a node from the original plan" << "\n";
+                    // cout << "Am on a node from the original plan" << "\n";
                     if (simulated_cost >= plan_states[k].prefix_cost) {
-                        cout << "But simulated cost: " << simulated_cost
-                             << ", was higher than prefix cost: "
-                             << plan_states[k].prefix_cost << "\n";
+                        // cout << "But simulated cost: " << simulated_cost
+                        //     << ", was higher than prefix cost: "
+                        //    << plan_states[k].prefix_cost << "\n";
                         continue;
                     }
 

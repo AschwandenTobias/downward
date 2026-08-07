@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+
+import os
+
+import custom_parser
+import project
+
+REPO = project.get_repo_base()
+BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
+
+REVISION_CACHE = (
+    os.environ.get("DOWNWARD_REVISION_CACHE")
+    or project.DIR / "data" / "revision-cache"
+)
+
+# ---------------------------------------------------------------------------
+# Environment and benchmark suite
+# ---------------------------------------------------------------------------
+
+if project.REMOTE:
+    # On sciCORE:
+    # Run all satisficing benchmark domains through SLURM.
+    SUITE = project.SUITE_SATISFICING
+    ENV = project.BaselSlurmEnvironment()
+else:
+    # Local testing:
+    # Only run a small subset to quickly test the experiment setup.
+    SUITE = [
+        "blocks",
+        "elevators-sat08-strips",
+    ]
+    ENV = project.LocalEnvironment(processes=12)
+
+# ---------------------------------------------------------------------------
+# Planner configurations
+# ---------------------------------------------------------------------------
+
+CONFIGS = [
+    (
+        "lazy-greedy-ff",
+        [
+            "--search",
+            "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))",
+        ],
+    ),
+    (
+        "lazy-greedy-ff-ae",
+        [
+            "--search",
+            "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))",
+            "--plan-improvement",
+            "ae",
+        ],
+    ),
+    (
+        "lazy-wastar-ff",
+        [
+            "--search",
+            "let(hff, ff(), lazy_wastar([hff], preferred=[hff], w=5))",
+        ],
+    ),
+    (
+        "lazy-wastar-ff-ae",
+        [
+            "--search",
+            "let(hff, ff(), lazy_wastar([hff], preferred=[hff], w=5))",
+            "--plan-improvement",
+            "ae",
+        ],
+    ),
+]
+
+BUILD_OPTIONS = []
+
+DRIVER_OPTIONS = [
+    "--overall-time-limit",
+    "5m",
+    "--overall-memory-limit",
+    "2G",
+]
+
+# ---------------------------------------------------------------------------
+# Fast Downward revision
+# ---------------------------------------------------------------------------
+
+REV_NICKS = [
+    ("plan_improvement", ""),
+]
+
+# ---------------------------------------------------------------------------
+# Report attributes
+# ---------------------------------------------------------------------------
+
+ATTRIBUTES = [
+    "algorithm",
+    "domain",
+    "problem",
+    "cost",
+    "plan_length",
+    "coverage",
+    "error",
+    "expansions",
+    "evaluations",
+    "search_time",
+    "total_time",
+    "memory",
+    "run_dir",
+]
+
+# ---------------------------------------------------------------------------
+# Experiment
+# ---------------------------------------------------------------------------
+
+exp = project.FastDownwardExperiment(
+    environment=ENV,
+    revision_cache=REVISION_CACHE,
+)
+
+for config_nick, config in CONFIGS:
+    for revision, revision_nick in REV_NICKS:
+        if revision_nick:
+            algorithm_name = f"{revision_nick}:{config_nick}"
+        else:
+            algorithm_name = config_nick
+
+        exp.add_algorithm(
+            algorithm_name,
+            REPO,
+            revision,
+            config,
+            build_options=BUILD_OPTIONS,
+            driver_options=DRIVER_OPTIONS,
+        )
+
+exp.add_suite(
+    BENCHMARKS_DIR,
+    SUITE,
+)
+
+# ---------------------------------------------------------------------------
+# Parsers
+# ---------------------------------------------------------------------------
+
+exp.add_parser(exp.EXITCODE_PARSER)
+exp.add_parser(exp.TRANSLATOR_PARSER)
+exp.add_parser(exp.SINGLE_SEARCH_PARSER)
+exp.add_parser(custom_parser.get_parser())
+exp.add_parser(exp.PLANNER_PARSER)
+
+# ---------------------------------------------------------------------------
+# Experiment steps
+# ---------------------------------------------------------------------------
+
+exp.add_step(
+    "build",
+    exp.build,
+)
+
+exp.add_step(
+    "start",
+    exp.start_runs,
+)
+
+exp.add_step(
+    "parse",
+    exp.parse,
+)
+
+exp.add_fetcher(
+    name="fetch",
+)
+
+# ---------------------------------------------------------------------------
+# Reports
+# ---------------------------------------------------------------------------
+
+project.add_absolute_report(
+    exp,
+    attributes=ATTRIBUTES,
+)
+
+# ---------------------------------------------------------------------------
+# Run
+# ---------------------------------------------------------------------------
+
+exp.run_steps()

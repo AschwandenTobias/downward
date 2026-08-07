@@ -72,7 +72,10 @@ int main(int argc, const char **argv) {
         // on? Disadvantage might be that we loose access to the original plan?
         // Postprocess_plan_if_enabled? Still an issue with the timer, which
         // stops beforehand.
-        search_algorithm->improve_plan_if_enabled();
+        if (parsed_search_options.plan_improver) {
+            search_algorithm->improve_plan(
+                *parsed_search_options.plan_improver);
+        }
         search_algorithm->save_plan_if_necessary();
         search_algorithm->print_statistics();
         utils::g_log << "Search time: " << search_timer << endl;

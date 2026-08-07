@@ -4,6 +4,8 @@
 #include "evaluator.h"
 
 #include "algorithms/ordered_set.h"
+// AE: added
+#include "plan_improvement/plan_improver.h"
 #include "plugins/plugin.h"
 #include "task_utils/successor_generator.h"
 #include "task_utils/task_properties.h"
@@ -124,12 +126,12 @@ bool SearchAlgorithm::check_goal_and_set_plan(const State &state) {
 
 // AE: Helper function which improves plans if wanted. For now just runs ae.
 // Unnecessarily check if found solution
-void SearchAlgorithm::improve_plan_if_enabled() {
-    if (found_solution()) {
-        // plan = action_elimination(plan, task_proxy, state_registry);
-        plan = action_elimination(plan, task_proxy, state_registry);
-        // cout << "here we could start to improve the plan" << "\n";
+void SearchAlgorithm::improve_plan(PlanImprover &plan_improver) {
+    if (!found_solution()) {
+        return;
     }
+
+    plan = plan_improver.improve(plan, task_proxy, state_registry);
 }
 
 void SearchAlgorithm::save_plan_if_necessary() {

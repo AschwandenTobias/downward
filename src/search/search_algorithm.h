@@ -31,6 +31,9 @@ namespace successor_generator {
 class SuccessorGenerator;
 }
 
+// AE: added
+class PlanImprover;
+
 enum SearchStatus {
     IN_PROGRESS,
     TIMEOUT,
@@ -72,7 +75,7 @@ public:
         utils::Verbosity verbosity);
     virtual void print_statistics() const = 0;
     // AE: Make this virtual? I don't think its necessary
-    void improve_plan_if_enabled();
+    void improve_plan(PlanImprover &plan_improver);
     virtual void save_plan_if_necessary();
     /*
       Returns true only if the search algorithm finds
@@ -127,5 +130,6 @@ get_search_algorithm_arguments_from_options(const plugins::Options &opts);
 extern void add_successors_order_options_to_feature(plugins::Feature &feature);
 extern std::tuple<bool, bool, int> get_successors_order_arguments_from_options(
     const plugins::Options &opts);
+// AE: added
 
 #endif

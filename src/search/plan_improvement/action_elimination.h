@@ -1,25 +1,13 @@
-#ifndef ACTION_ELIMINATION_H
-#define ACTION_ELIMINATION_H
+#ifndef PLAN_IMPROVEMENT_ACTION_ELIMINATION_H
+#define PLAN_IMPROVEMENT_ACTION_ELIMINATION_H
 
-#include "../operator_id.h"
-#include "../plan_manager.h"
-#include "../state_registry.h"
+#include "plan_improver.h"
 
-#include "../task_utils/task_properties.h"
-struct StateInfo {
-    State state;
-    size_t index;
-    size_t prefix_cost;
+class ActionElimination : public PlanImprover {
+public:
+    Plan improve(
+        const Plan &plan, const TaskProxy &task_proxy,
+        StateRegistry &state_registry) override;
 };
-
-Plan action_elimination(
-    const Plan &plan, const TaskProxy &taskProxy,
-    StateRegistry &state_registry);
-std::vector<StateInfo> extract_state_info_from_plan(
-    const Plan &plan, const TaskProxy &task_proxy,
-    StateRegistry &state_registry);
-Plan track_plan_states(
-    const Plan &plan, const TaskProxy &task_proxy,
-    StateRegistry &state_registry);
 
 #endif

@@ -6,8 +6,14 @@
 #include <memory>
 #include <string>
 
+// AE: added
+class PlanImprover;
+
 struct ParsedSearchOptions {
     std::shared_ptr<TaskIndependentSearchAlgorithm> search_algorithm;
+    // AE: added
+    std::shared_ptr<PlanImprover> plan_improver;
+
     std::string plan_filename;
     int num_previously_generated_plans;
     bool is_part_of_anytime_portfolio;

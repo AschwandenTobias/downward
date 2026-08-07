@@ -6,6 +6,9 @@
 
 #include "parser/lexical_analyzer.h"
 #include "parser/syntax_analyzer.h"
+// AE: added
+#include "plan_improvement/action_elimination.h"
+#include "plan_improvement/action_elimination_plan_states.h"
 #include "plugins/any.h"
 #include "plugins/doc_printer.h"
 #include "plugins/plugin.h"
@@ -87,6 +90,8 @@ static vector<string> replace_old_style_predefinitions(
 static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
     ParsedSearchOptions parsed_options;
     parsed_options.search_algorithm = nullptr;
+    // AE: added
+    parsed_options.plan_improver = nullptr;
     parsed_options.plan_filename = "sas_plan";
     parsed_options.num_previously_generated_plans = 0;
     parsed_options.is_part_of_anytime_portfolio = false;
@@ -168,6 +173,16 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
 
             ++i;
             cout << "recognized plan improvement: " << args[i] << "\n";
+            const string &improvement_arg = args[i];
+            if (improvement_arg == "ae") {
+                parsed_options.plan_improver = make_shared<ActionElimination>();
+            } else if (improvement_arg == "ae_plan_states") {
+                parsed_options.plan_improver =
+                    make_shared<ActionEliminationPlanStates>();
+            } else {
+                input_error(
+                    "unknown plan improvement method: " + improvement_arg);
+            }
         } else {
             input_error("unknown option " + arg);
         }

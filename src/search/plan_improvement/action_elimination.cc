@@ -68,6 +68,7 @@ Plan action_elimination(
     return reduced_plan;
 }
 
+//AE: This function returns a vector for each state with index and prefix_cost for a plan.
 vector<StateInfo> extract_state_info_from_plan(
     const Plan &plan, const TaskProxy &task_proxy,
     StateRegistry &state_registry) {
@@ -91,108 +92,97 @@ vector<StateInfo> extract_state_info_from_plan(
 // AE: The version that runs ae first and does an additional run after which
 // checks if we reconnect with states but with a cheaper prefix.
 Plan track_plan_states(
-    const Plan &plan, const TaskProxy &task_proxy,
+    const Plan &plan,
+    const TaskProxy &task_proxy,
     StateRegistry &state_registry) {
-    Plan reduced_plan = action_elimination(plan, task_proxy, state_registry);
+    //Plan current_plan =
+    //    action_elimination(plan, task_proxy, state_registry);
+    Plan current_plan = plan;
     OperatorsProxy operators = task_proxy.get_operators();
-    State initial_state = state_registry.get_initial_state();
-    State prefix_state = initial_state;
-    set<size_t> marked_actions;
 
-    vector<StateInfo> plan_states =
-        extract_state_info_from_plan(reduced_plan, task_proxy, state_registry);
+    bool improvement_found = true;
+        cout << "Trying now additional reductions" << "\n";
+    while (improvement_found) {
+        improvement_found = false;
+        vector<StateInfo> plan_states =
+            extract_state_info_from_plan(
+                current_plan, task_proxy, state_registry);
+        for (size_t i = 0; i < current_plan.size(); ++i) {
+            State simulated_state = plan_states[i].state;
+            size_t simulated_cost = plan_states[i].prefix_cost;
 
-    size_t i = 0;
-    while (i < reduced_plan.size()) {
-        State current_state = prefix_state;
-        OperatorProxy prefix_operator = operators[reduced_plan.at(i)];
-        marked_actions.insert(i);
-        size_t current_cost = plan_states.at(i).prefix_cost;
-        for (size_t j = i + 1; j < reduced_plan.size(); j++) {
-            OperatorProxy current_operator = operators[reduced_plan.at(j)];
-            if (is_applicable(current_operator, current_state)) {
-                current_state = state_registry.get_successor_state(
-                    current_state, current_operator);
-                current_cost += current_operator.get_cost();
-                for (size_t k = j + 2; k < plan_states.size(); k++) {
-                    if ((current_state == plan_states.at(k).state) &&
-                        (current_cost < plan_states.at(k).prefix_cost)) {
-                        cout
-                            << "Reached a state of the original plan with cheaper cost, current_cost is:"
-                            << current_cost << ", prefix_cost is: "
-                            << plan_states.at(k).prefix_cost << "\n";
+            Plan candidate_segment;
+
+            for (size_t j = i + 1; j < current_plan.size(); ++j) {
+                OperatorProxy op = operators[current_plan[j]];
+
+                if (!is_applicable(op, simulated_state)) {
+                    continue;
+                }
+
+                simulated_state =
+                    state_registry.get_successor_state(
+                        simulated_state, op);
+
+                simulated_cost += op.get_cost();
+                candidate_segment.push_back(current_plan[j]);
+
+                for (size_t k = i + 1;
+                     k < plan_states.size();
+                     ++k) {
+                    if (simulated_state != plan_states[k].state) {
+                        continue;
                     }
-                }
-            } else {
-                marked_actions.insert(j);
-            }
-        }
-        i++;
-    }
-    return reduced_plan;
-}
-
-// AE: Not sure if its worth it to finish this version rn. Might be actively
-// worse than just standart ae. Finish later!
-Plan action_elimination_track_plan_states(
-    const Plan &plan, const TaskProxy &task_proxy,
-    StateRegistry &state_registry) {
-    Plan reduced_plan = plan;
-    OperatorsProxy operators = task_proxy.get_operators();
-    State initial_state = state_registry.get_initial_state();
-    // Stores the indices of all marked actions.
-    set<size_t> marked_actions;
-    State prefix_state = initial_state;
-
-    vector<StateInfo> plan_states =
-        extract_state_info_from_plan(plan, task_proxy, state_registry);
-
-    size_t i = 0;
-    while (i < reduced_plan.size()) {
-        marked_actions.clear();
-        State current_state = prefix_state;
-        OperatorProxy prefix_operator = operators[reduced_plan.at(i)];
-        marked_actions.insert(i);
-        size_t current_cost = plan_states.at(i).prefix_cost;
-        for (size_t j = i + 1; j < reduced_plan.size(); j++) {
-            OperatorProxy current_operator = operators[reduced_plan.at(j)];
-            if (is_applicable(current_operator, current_state)) {
-                current_state = state_registry.get_successor_state(
-                    current_state, current_operator);
-                current_cost += current_operator.get_cost();
-                // We check here if we reached a state in the original plan at a
-                // cheaper prize.
-                for (size_t k = j + 2; k < plan_states.size(); k++) {
-                    if ((current_state == plan_states.at(k).state) &&
-                        (current_cost < plan_states.at(k).prefix_cost)) {
-                        cout
-                            << "Reached a state of the original plan with cheaper cost, current_cost is:"
-                            << current_cost << ", prefix_cost is: "
-                            << plan_states.at(k).prefix_cost << "\n";
+                    cout << "Am on a node from the original plan" << "\n";
+                    if (simulated_cost >=
+                        plan_states[k].prefix_cost) {
+                        cout << "But simulated cost: " << simulated_cost << ", was higher than prefix cost: " << plan_states[k].prefix_cost << "\n";
+                        continue;
                     }
+
+                    Plan improved_plan;
+
+                    improved_plan.insert(
+                        improved_plan.end(),
+                        current_plan.begin(),
+                        current_plan.begin() + i);
+
+                    improved_plan.insert(
+                        improved_plan.end(),
+                        candidate_segment.begin(),
+                        candidate_segment.end());
+
+                    improved_plan.insert(
+                        improved_plan.end(),
+                        current_plan.begin() + k,
+                        current_plan.end());
+
+                    cout
+                        << "Found cheaper reconnection.\n"
+                        << "Start action index: " << i << "\n"
+                        << "Matched state index: " << k << "\n"
+                        << "Old prefix cost: "
+                        << plan_states[k].prefix_cost << "\n"
+                        << "New prefix cost: "
+                        << simulated_cost << "\n"
+                        << "Old plan length: "
+                        << current_plan.size() << "\n"
+                        << "New plan length: "
+                        << improved_plan.size() << "\n";
+
+                    current_plan = std::move(improved_plan);
+                    improvement_found = true;
+                    break;
                 }
-            } else {
-                marked_actions.insert(j);
-            }
-        }
-        if (is_goal_state(task_proxy, current_state)) {
-            cout << "FOUND A REDUCTION! Remove marked actions from plan"
-                 << "\n";
-            Plan improved_plan;
-            for (size_t i = 0; i < reduced_plan.size(); i++) {
-                if (!marked_actions.contains(i)) {
-                    improved_plan.push_back(reduced_plan[i]);
+
+                if (improvement_found) {
+                    break;
                 }
             }
-            reduced_plan = improved_plan;
-            // Recompute the plan_states from the reduced plan.
-            plan_states = extract_state_info_from_plan(
-                reduced_plan, task_proxy, state_registry);
-        } else {
-            prefix_state = state_registry.get_successor_state(
-                prefix_state, prefix_operator);
-            i++;
+            if (improvement_found) {
+                break;
+            }
         }
     }
-    return reduced_plan;
+    return current_plan;
 }

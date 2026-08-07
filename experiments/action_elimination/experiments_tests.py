@@ -26,8 +26,15 @@ else:
     # Local testing:
     # Only run a small subset to quickly test the experiment setup.
     SUITE = [
-        "blocks",
-        "elevators-sat08-strips",
+        "blocks:probBLOCKS-4-0.pddl",
+        "blocks:probBLOCKS-5-0.pddl",
+        "blocks:probBLOCKS-16-1.pddl",
+        "blocks:probBLOCKS-16-2.pddl",
+        "blocks:probBLOCKS-17-0.pddl",
+        "blocks:probBLOCKS-15-1.pddl",
+        "blocks:probBLOCKS-15-0.pddl",
+        "elevators-sat08-strips:p01.pddl",
+        "elevators-sat08-strips:p02.pddl",
     ]
     ENV = project.LocalEnvironment(processes=12)
 

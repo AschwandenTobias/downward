@@ -160,6 +160,14 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
             if (parsed_options.num_previously_generated_plans < 0)
                 input_error(
                     "argument for --internal-previous-portfolio-plans must be positive");
+        } else if (arg == "--plan-improvement") {
+            // AE: Added option here
+            cout << "AE: recognized --plan-improvement as an option" << "\n";
+            if (is_last)
+                input_error("missing argument after --plan-improvement");
+
+            ++i;
+            cout << "recognized plan improvement: " << args[i] << "\n";
         } else {
             input_error("unknown option " + arg);
         }

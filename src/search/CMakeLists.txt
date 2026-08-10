@@ -111,6 +111,7 @@ create_fast_downward_library(
         plan_manager
         plan_improvement/action_elimination
         plan_improvement/action_elimination_plan_states
+        plan_improvement/operator_reduction
         pruning_method
         search_algorithm
         search_node_info

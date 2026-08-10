@@ -9,6 +9,7 @@
 // AE: added
 #include "plan_improvement/action_elimination.h"
 #include "plan_improvement/action_elimination_plan_states.h"
+#include "plan_improvement/operator_reduction.h"
 #include "plugins/any.h"
 #include "plugins/doc_printer.h"
 #include "plugins/plugin.h"
@@ -179,6 +180,8 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
             } else if (improvement_arg == "ae_plan_states") {
                 parsed_options.plan_improver =
                     make_shared<ActionEliminationPlanStates>();
+            } else if (improvement_arg == "operator_reduction") {
+                parsed_options.plan_improver = make_shared<OperatorReduction>();
             } else {
                 input_error(
                     "unknown plan improvement method: " + improvement_arg);

@@ -124,8 +124,7 @@ bool SearchAlgorithm::check_goal_and_set_plan(const State &state) {
     return false;
 }
 
-// AE: Helper function which improves plans if wanted. For now just runs ae.
-// Unnecessarily check if found solution
+// AE: Helper function which improves plans if given correct config
 void SearchAlgorithm::improve_plan(PlanImprover &plan_improver) {
     if (!found_solution()) {
         return;

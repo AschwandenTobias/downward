@@ -60,19 +60,12 @@ CONFIGS = [
         ],
     ),
     (
-        "lazy-wastar-ff",
+        "lazy-greedy-ff-ae_plan_states",
         [
             "--search",
-            "let(hff, ff(), lazy_wastar([hff], preferred=[hff], w=5))",
-        ],
-    ),
-    (
-        "lazy-wastar-ff-ae",
-        [
-            "--search",
-            "let(hff, ff(), lazy_wastar([hff], preferred=[hff], w=5))",
+            "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))",
             "--plan-improvement",
-            "ae",
+            "ae_plan_states",
         ],
     ),
 ]

@@ -2,6 +2,7 @@
 #define PLAN_IMPROVEMENT_OPERATOR_REDUCTION_H
 
 #include "plan_improver.h"
+
 class OperatorReduction : public PlanImprover {
 public:
     Plan improve(

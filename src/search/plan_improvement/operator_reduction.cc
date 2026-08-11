@@ -1,26 +1,25 @@
 #include "operator_reduction.h"
 
-#include "../operator_id.h"
-#include "../pruning_method.h"
-#include "../state_registry.h"
-#include "../task_proxy.h"
+#include "operator_pruner.h"
 
-#include "../task_utils/task_properties.h"
+#include "../state_registry.h"
 
 #include <iostream>
-#include <set>
+#include <memory>
 
 using namespace std;
-using namespace task_properties;
 
 Plan OperatorReduction::improve(
-    const Plan &plan, const std::shared_ptr<AbstractTask> &task,
+    const Plan &plan, const shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
-    cout << "arrived at operator reduction" << "\n";
-    /*
-    This improvement idea should take the existing task and reduce the operators
-    it can actively use in its search
-    */
-    TaskProxy task_proxy(*task);
+    cout << "Arrived at operator reduction\n";
+
+    shared_ptr<OperatorPruner> operator_pruner =
+        make_shared<OperatorPruner>(task, utils::Verbosity::NORMAL, plan);
+
+    // TODO:
+    // Run a new optimal search and pass operator_pruner
+    // as the pruning method.
+
     return plan;
 }

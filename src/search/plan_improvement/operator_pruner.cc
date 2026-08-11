@@ -1,5 +1,8 @@
 #include "operator_pruner.h"
 
+#include <memory>
+#include <utility>
+
 using namespace std;
 
 OperatorPruner::OperatorPruner(
@@ -22,4 +25,15 @@ void OperatorPruner::prune(const State &, vector<OperatorID> &op_ids) {
     }
 
     op_ids = move(remaining_operators);
+}
+
+TaskIndependentOperatorPruner::TaskIndependentOperatorPruner(
+    utils::Verbosity verbosity, const Plan &plan)
+    : verbosity(verbosity), plan(plan) {
+}
+
+shared_ptr<PruningMethod>
+TaskIndependentOperatorPruner::create_task_specific_component(
+    const shared_ptr<AbstractTask> &task) const {
+    return make_shared<OperatorPruner>(task, verbosity, plan);
 }

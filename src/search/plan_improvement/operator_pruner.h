@@ -1,6 +1,7 @@
 #ifndef PLAN_IMPROVEMENT_OPERATOR_PRUNER_H
 #define PLAN_IMPROVEMENT_OPERATOR_PRUNER_H
 
+#include "../component.h"
 #include "../plan_manager.h"
 #include "../pruning_method.h"
 
@@ -22,6 +23,26 @@ public:
     bool is_safe() const override {
         return false;
     }
+};
+
+/*
+ * Task-independent wrapper for OperatorPruner.
+ *
+ * We cannot use make_auto_task_independent_component directly
+ * because Plan is vector<OperatorID>, and OperatorID is not a
+ * supported automatically bindable type.
+ */
+class TaskIndependentOperatorPruner
+    : public components::TaskIndependentComponent<PruningMethod> {
+    utils::Verbosity verbosity;
+    Plan plan;
+
+protected:
+    std::shared_ptr<PruningMethod> create_task_specific_component(
+        const std::shared_ptr<AbstractTask> &task) const override;
+
+public:
+    TaskIndependentOperatorPruner(utils::Verbosity verbosity, const Plan &plan);
 };
 
 #endif

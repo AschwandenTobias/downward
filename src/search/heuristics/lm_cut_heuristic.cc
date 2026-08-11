@@ -19,8 +19,9 @@ LandmarkCutHeuristic::LandmarkCutHeuristic(
     bool use_border_detection, bool cache_estimates, const string &description,
     utils::Verbosity verbosity)
     : Heuristic(task, cache_estimates, description, verbosity),
-      landmark_generator(make_unique<LandmarkCutLandmarks>(
-          task_proxy, use_goal_zone_detection, use_border_detection)) {
+      landmark_generator(
+          make_unique<LandmarkCutLandmarks>(
+              task_proxy, use_goal_zone_detection, use_border_detection)) {
     if (log.is_at_least_normal()) {
         log << "Initializing landmark cut heuristic..." << endl;
     }

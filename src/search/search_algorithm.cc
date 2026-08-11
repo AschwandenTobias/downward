@@ -130,7 +130,7 @@ void SearchAlgorithm::improve_plan(PlanImprover &plan_improver) {
         return;
     }
 
-    plan = plan_improver.improve(plan, task_proxy, state_registry);
+    plan = plan_improver.improve(plan, task, state_registry);
 }
 
 void SearchAlgorithm::save_plan_if_necessary() {

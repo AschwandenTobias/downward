@@ -13,8 +13,9 @@ using namespace std;
 using namespace task_properties;
 
 Plan ActionElimination::improve(
-    const Plan &plan, const TaskProxy &task_proxy,
+    const Plan &plan, const std::shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
+    TaskProxy task_proxy(*task);
     Plan reduced_plan = plan;
     cout << "action_elimination is called\n";
     OperatorsProxy operators = task_proxy.get_operators();

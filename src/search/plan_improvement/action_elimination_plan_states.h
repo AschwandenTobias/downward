@@ -6,7 +6,7 @@
 class ActionEliminationPlanStates : public PlanImprover {
 public:
     Plan improve(
-        const Plan &plan, const TaskProxy &task_proxy,
+        const Plan &plan, const std::shared_ptr<AbstractTask> &task,
         StateRegistry &state_registry) override;
 };
 

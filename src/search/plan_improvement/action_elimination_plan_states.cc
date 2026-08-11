@@ -39,9 +39,10 @@ vector<StateInfo> extract_state_info_from_plan(
 }
 
 Plan ActionEliminationPlanStates::improve(
-    const Plan &plan, const TaskProxy &task_proxy,
+    const Plan &plan, const std::shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
     Plan current_plan = plan;
+    TaskProxy task_proxy(*task);
     OperatorsProxy operators = task_proxy.get_operators();
 
     bool improvement_found = true;

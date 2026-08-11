@@ -1,0 +1,229 @@
+#!/usr/bin/env python3
+
+import os
+
+import custom_parser
+import project
+
+
+REPO = project.get_repo_base()
+BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
+
+REVISION_CACHE = (
+    os.environ.get("DOWNWARD_REVISION_CACHE")
+    or project.DIR / "data" / "revision-cache"
+)
+
+
+# ---------------------------------------------------------------------------
+# Environment and benchmark suite
+# ---------------------------------------------------------------------------
+
+if project.REMOTE:
+    # On sciCORE:
+    # Run all satisficing benchmark domains through SLURM.
+    SUITE = project.SUITE_SATISFICING
+    ENV = project.BaselSlurmEnvironment()
+
+else:
+    # Local testing:
+    # Only run a small subset to quickly test the experiment setup.
+    SUITE = [
+        "blocks:probBLOCKS-4-0.pddl",
+        "blocks:probBLOCKS-5-0.pddl",
+        "blocks:probBLOCKS-16-1.pddl",
+        "blocks:probBLOCKS-16-2.pddl",
+        "blocks:probBLOCKS-17-0.pddl",
+        "blocks:probBLOCKS-15-1.pddl",
+        "blocks:probBLOCKS-15-0.pddl",
+        "elevators-sat08-strips:p01.pddl",
+        "elevators-sat08-strips:p02.pddl",
+    ]
+
+    ENV = project.LocalEnvironment(processes=12)
+
+
+# ---------------------------------------------------------------------------
+# Planner configurations
+# ---------------------------------------------------------------------------
+
+SEARCH = "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))"
+
+
+CONFIGS = [
+    # Baseline: no plan improvement.
+    (
+        "lazy-greedy-ff",
+        [
+            "--search",
+            SEARCH,
+        ],
+    ),
+
+    # Action elimination.
+    (
+        "lazy-greedy-ff-ae",
+        [
+            "--search",
+            SEARCH,
+            "--plan-improvement",
+            "ae",
+        ],
+    ),
+
+    # Action elimination using tracked plan states.
+    (
+        "lazy-greedy-ff-ae-plan-states",
+        [
+            "--search",
+            SEARCH,
+            "--plan-improvement",
+            "ae_plan_states",
+        ],
+    ),
+
+    # Operator-restricted optimal re-search.
+    (
+        "lazy-greedy-ff-operator-reduction",
+        [
+            "--search",
+            SEARCH,
+            "--plan-improvement",
+            "operator_reduction",
+        ],
+    ),
+]
+
+
+BUILD_OPTIONS = []
+
+DRIVER_OPTIONS = [
+    "--overall-time-limit",
+    "5m",
+    "--overall-memory-limit",
+    "2G",
+]
+
+
+# ---------------------------------------------------------------------------
+# Fast Downward revision
+# ---------------------------------------------------------------------------
+
+REV_NICKS = [
+    ("plan_improvement", ""),
+]
+
+
+# ---------------------------------------------------------------------------
+# Report attributes
+# ---------------------------------------------------------------------------
+
+ATTRIBUTES = [
+    # Identification.
+    "algorithm",
+    "domain",
+    "problem",
+
+    # Did it work?
+    "coverage",
+    "error",
+
+    # Plan quality.
+    "cost",
+    "plan_length",
+
+    # Performance.
+    "search_time",
+    "plan_improvement_time",
+    "total_time",
+    "memory",
+]
+
+
+# ---------------------------------------------------------------------------
+# Experiment
+# ---------------------------------------------------------------------------
+
+exp = project.FastDownwardExperiment(
+    environment=ENV,
+    revision_cache=REVISION_CACHE,
+)
+
+
+for config_nick, config in CONFIGS:
+    for revision, revision_nick in REV_NICKS:
+
+        if revision_nick:
+            algorithm_name = f"{revision_nick}:{config_nick}"
+        else:
+            algorithm_name = config_nick
+
+        exp.add_algorithm(
+            algorithm_name,
+            REPO,
+            revision,
+            config,
+            build_options=BUILD_OPTIONS,
+            driver_options=DRIVER_OPTIONS,
+        )
+
+
+exp.add_suite(
+    BENCHMARKS_DIR,
+    SUITE,
+)
+
+
+# ---------------------------------------------------------------------------
+# Parsers
+# ---------------------------------------------------------------------------
+
+exp.add_parser(exp.EXITCODE_PARSER)
+exp.add_parser(exp.TRANSLATOR_PARSER)
+exp.add_parser(exp.SINGLE_SEARCH_PARSER)
+
+# Parse our custom "Plan improvement time" output.
+exp.add_parser(custom_parser.get_parser())
+
+exp.add_parser(exp.PLANNER_PARSER)
+
+
+# ---------------------------------------------------------------------------
+# Experiment steps
+# ---------------------------------------------------------------------------
+
+exp.add_step(
+    "build",
+    exp.build,
+)
+
+exp.add_step(
+    "start",
+    exp.start_runs,
+)
+
+exp.add_step(
+    "parse",
+    exp.parse,
+)
+
+exp.add_fetcher(
+    name="fetch",
+)
+
+
+# ---------------------------------------------------------------------------
+# Reports
+# ---------------------------------------------------------------------------
+
+project.add_absolute_report(
+    exp,
+    attributes=ATTRIBUTES,
+)
+
+
+# ---------------------------------------------------------------------------
+# Run
+# ---------------------------------------------------------------------------
+
+exp.run_steps()

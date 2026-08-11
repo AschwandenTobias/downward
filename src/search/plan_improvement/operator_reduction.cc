@@ -27,8 +27,11 @@ Plan OperatorReduction::improve(
     StateRegistry &state_registry) {
     // The second search creates its own StateRegistry.
     (void)state_registry;
-
-    cout << "Starting operator reduction" << endl;
+    cout << "\n";
+    cout << "\n";
+    cout << "\n";
+    cout << "\n";
+    cout << "!!!!! Starting operator reduction !!!!!" << endl;
     cout << "Initial plan length: " << plan.size() << endl;
 
     /*

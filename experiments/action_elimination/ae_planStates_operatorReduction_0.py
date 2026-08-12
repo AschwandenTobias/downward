@@ -110,7 +110,7 @@ DRIVER_OPTIONS = [
 # ---------------------------------------------------------------------------
 
 REV_NICKS = [
-    ("plan_improvement", ""),
+    ("operator_reduction", ""),
 ]
 
 

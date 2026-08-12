@@ -66,7 +66,7 @@ int main(int argc, const char **argv) {
         utils::Timer search_timer;
         search_algorithm->search();
         search_timer.stop();
-        utils::g_timer.stop();
+        // utils::g_timer.stop();
 
         // AE: I think this might be the spot to dock plan improvement stuff
         // on? Disadvantage might be that we loose access to the original plan?

@@ -58,7 +58,6 @@ CONFIGS = [
             SEARCH,
         ],
     ),
-
     # Action elimination.
     (
         "lazy-greedy-ff-ae",

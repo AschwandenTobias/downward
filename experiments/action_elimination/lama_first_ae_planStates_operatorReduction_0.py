@@ -52,44 +52,96 @@ SEARCH = "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))"
 CONFIGS = [
     # Baseline: no plan improvement.
     (
-        "lazy-greedy-ff",
-        [
-            "--search",
-            SEARCH,
-        ],
-    ),
+    "lama-first",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+    ],
+),
     # Action elimination.
     (
-        "lazy-greedy-ff-ae",
-        [
-            "--search",
-            SEARCH,
-            "--plan-improvement",
-            "ae",
-        ],
-    ),
+    "lama-first-ae",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+        "--plan-improvement",
+        "ae",
+    ],
+),
 
     # Action elimination using tracked plan states.
     (
-        "lazy-greedy-ff-ae-plan-states",
-        [
-            "--search",
-            SEARCH,
-            "--plan-improvement",
-            "ae_plan_states",
-        ],
-    ),
+    "lama-first-ae-plan-states",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+        "--plan-improvement",
+        "ae_plan_states",
+    ],
+),
 
     # Operator-restricted optimal re-search.
     (
-        "lazy-greedy-ff-operator-reduction",
-        [
-            "--search",
-            SEARCH,
-            "--plan-improvement",
-            "operator_reduction",
-        ],
-    ),
+    "lama-first-operator-reduction",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+        "--plan-improvement",
+        "operator_reduction",
+    ],
+),
     # This doesn't quite work since the script uses a single search parser.
     #(
     #    "iterated-wastar-ff",

@@ -28,13 +28,12 @@ if project.REMOTE:
 else:
     # Local testing:
     # Only run a small subset to quickly test the experiment setup.
+    # Quickly here still means at least 5 minutes since some of those are not solvable in that time.
     SUITE = [
         "blocks:probBLOCKS-4-0.pddl",
         "blocks:probBLOCKS-5-0.pddl",
-        "blocks:probBLOCKS-16-1.pddl",
         "blocks:probBLOCKS-16-2.pddl",
         "blocks:probBLOCKS-17-0.pddl",
-        "blocks:probBLOCKS-15-1.pddl",
         "blocks:probBLOCKS-15-0.pddl",
         "elevators-sat08-strips:p01.pddl",
         "elevators-sat08-strips:p02.pddl",
@@ -92,6 +91,31 @@ CONFIGS = [
             "operator_reduction",
         ],
     ),
+    # This doesn't quite work since the script uses a single search parser.
+    #(
+    #    "iterated-wastar-ff",
+    #    [
+    #        "--search",
+    #        (
+    #            "let(hff, ff(), "
+    #            "iterated(["
+    #            "lazy_wastar([hff], preferred=[hff], w=10), "
+    #            "lazy_wastar([hff], preferred=[hff], w=5), "
+    #            "lazy_wastar([hff], preferred=[hff], w=3), "
+    #            "lazy_wastar([hff], preferred=[hff], w=2), "
+    #            "lazy_wastar([hff], preferred=[hff], w=1)"
+    #            "]))"
+    #        ),
+    #    ],
+    #),
+    # For final results add astar aswell to compare to the true cost. But not necessary on each run.
+    #( 
+    #"astar-lmcut",
+    #[
+    #    "--search",
+    #    "astar(lmcut())",
+    #],
+#),
 ]
 
 

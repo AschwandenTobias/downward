@@ -4,7 +4,6 @@ import os
 
 import project
 
-
 REPO = project.get_repo_base()
 BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
 
@@ -12,11 +11,6 @@ REVISION_CACHE = (
     os.environ.get("DOWNWARD_REVISION_CACHE")
     or project.DIR / "data" / "revision-cache"
 )
-
-
-# ---------------------------------------------------------------------------
-# Environment and benchmark suite
-# ---------------------------------------------------------------------------
 
 if project.REMOTE:
     SUITE = project.SUITE_SATISFICING
@@ -35,11 +29,6 @@ else:
 
     ENV = project.LocalEnvironment(processes=12)
 
-
-# ---------------------------------------------------------------------------
-# Planner configurations
-# ---------------------------------------------------------------------------
-
 CONFIGS = [
     (
         "lama-2011",
@@ -51,11 +40,6 @@ CONFIGS = [
     ),
 ]
 
-
-# ---------------------------------------------------------------------------
-# Resource limits
-# ---------------------------------------------------------------------------
-
 BUILD_OPTIONS = []
 
 DRIVER_OPTIONS = [
@@ -65,44 +49,21 @@ DRIVER_OPTIONS = [
     "2G",
 ]
 
-
-# ---------------------------------------------------------------------------
-# Fast Downward revision
-# ---------------------------------------------------------------------------
-
 REV_NICKS = [
     ("operator_reduction", ""),
 ]
-
-
-# ---------------------------------------------------------------------------
-# Report attributes
-# ---------------------------------------------------------------------------
 
 ATTRIBUTES = [
     "algorithm",
     "domain",
     "problem",
-
     "coverage",
     "error",
-
-    # Best plan found.
     "cost",
-
-    # All improving plan costs found during the anytime search.
-    "cost:all",
-
-    # Resource usage.
     "planner_time",
     "planner_wall_clock_time",
     "planner_memory",
 ]
-
-
-# ---------------------------------------------------------------------------
-# Experiment
-# ---------------------------------------------------------------------------
 
 exp = project.FastDownwardExperiment(
     environment=ENV,
@@ -133,11 +94,6 @@ exp.add_suite(
     SUITE,
 )
 
-
-# ---------------------------------------------------------------------------
-# Parsers
-# ---------------------------------------------------------------------------
-
 exp.add_parser(exp.EXITCODE_PARSER)
 exp.add_parser(exp.TRANSLATOR_PARSER)
 
@@ -145,11 +101,6 @@ exp.add_parser(exp.TRANSLATOR_PARSER)
 exp.add_parser(exp.ANYTIME_SEARCH_PARSER)
 
 exp.add_parser(exp.PLANNER_PARSER)
-
-
-# ---------------------------------------------------------------------------
-# Experiment steps
-# ---------------------------------------------------------------------------
 
 exp.add_step(
     "build",

@@ -44,15 +44,15 @@ Plan ActionEliminationPlanStates::improve(
     const Plan &plan, const std::shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
     TaskProxy task_proxy(*task);
+    ActionElimination action_elimination;
     OperatorsProxy operators = task_proxy.get_operators();
-    Plan current_plan =
-        action_elimination.improve(plan, task_proxy, state_registry);
+    Plan current_plan = action_elimination.improve(plan, task, state_registry);
     // TODO: Version which runs first ae then the plan states version.
-
+    cout << "Did run ae as a base plan improvement method.";
     // Plan current_plan = plan;
 
     bool improvement_found = true;
-    // cout << "Trying now additional reductions" << "\n";
+    cout << "Trying now additional reductions" << "\n";
     while (improvement_found) {
         improvement_found = false;
         vector<StateInfo> plan_states = extract_state_info_from_plan(

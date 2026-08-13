@@ -5,6 +5,7 @@
 #include "../component.h"
 #include "../evaluator.h"
 #include "../operator_cost.h"
+#include "../pruning_method.h"
 #include "../search_algorithm.h"
 #include "../state_registry.h"
 
@@ -22,129 +23,88 @@
 
 using namespace std;
 
+OperatorReduction::OperatorReduction(OperatorReductionType reduction_type)
+    : reduction_type(reduction_type) {
+}
+
 Plan OperatorReduction::improve(
     const Plan &plan, const shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
-    // The second search creates its own StateRegistry.
     (void)state_registry;
-    cout << "\n";
-    cout << "\n";
-    cout << "\n";
-    cout << "\n";
-    cout << "!!!!! Starting operator reduction !!!!!" << endl;
+
+    cout << "Starting operator reduction" << endl;
     cout << "Initial plan length: " << plan.size() << endl;
 
     /*
      * ------------------------------------------------------------
-     * 1. Create our task-independent pruning component.
+     * 1. Select pruning strategy.
      * ------------------------------------------------------------
-     *
-     * IMPORTANT:
-     *
-     * Do NOT use:
-     *
-     * components::make_auto_task_independent_component<
-     *     OperatorPruner, PruningMethod>(..., plan);
-     *
-     * Fast Downward's automatic binder cannot handle
-     * vector<OperatorID>.
-     *
-     * TaskIndependentOperatorPruner stores the Plan itself and
-     * creates OperatorPruner once a task is bound.
      */
-    auto operator_pruner = make_shared<TaskIndependentOperatorPruner>(
-        utils::Verbosity::NORMAL, plan);
+    shared_ptr<components::TaskIndependentComponent<PruningMethod>>
+        operator_pruner;
+
+    if (reduction_type == OperatorReductionType::IDS) {
+        cout << "Using exact OperatorID reduction" << endl;
+
+        operator_pruner = make_shared<TaskIndependentOperatorPruner>(
+            utils::Verbosity::NORMAL, plan);
+    } else {
+        cout << "Using operator-name reduction" << endl;
+
+        operator_pruner = make_shared<TaskIndependentOperatorNamePruner>(
+            utils::Verbosity::NORMAL, plan);
+    }
 
     /*
      * ------------------------------------------------------------
-     * 2. Create task-independent LM-cut.
+     * 2. Create LM-cut.
      * ------------------------------------------------------------
-     *
-     * Actual constructor after task binding:
-     *
-     * LandmarkCutHeuristic(
-     *     task,
-     *     use_goal_zone_detection,
-     *     use_border_detection,
-     *     cache_estimates,
-     *     description,
-     *     verbosity)
-     *
-     * The first argument, task, is inserted by bind_task().
      */
     auto lmcut = components::make_auto_task_independent_component<
-        lm_cut_heuristic::LandmarkCutHeuristic,
-        Evaluator>(
-        true, // goal_zone_detection
-        true, // border_detection
-        true, // cache_estimates
-        "lmcut", utils::Verbosity::NORMAL);
+        lm_cut_heuristic::LandmarkCutHeuristic, Evaluator>(
+        true, true, true, "lmcut", utils::Verbosity::NORMAL);
 
     /*
      * ------------------------------------------------------------
-     * 3. Create standard A* open list and f = g + h evaluator.
+     * 3. Build standard A* components.
      * ------------------------------------------------------------
-     *
-     * This is exactly the helper used by plugin_astar.cc.
      */
     auto astar_components =
         search_common::create_astar_open_list_factory_and_f_eval(
             lmcut, utils::Verbosity::NORMAL);
 
-    /*
-     * A* normally has no preferred-operator evaluators.
-     */
     vector<shared_ptr<components::TaskIndependentComponent<Evaluator>>>
         preferred;
 
-    /*
-     * No lazy evaluator.
-     */
     shared_ptr<components::TaskIndependentComponent<Evaluator>> lazy_evaluator =
         nullptr;
 
     /*
      * ------------------------------------------------------------
-     * 4. Construct task-independent EagerSearch.
+     * 4. Construct A* as EagerSearch.
      * ------------------------------------------------------------
-     *
-     * This corresponds to astar(lmcut()), except that our custom
-     * OperatorPruner is supplied as the pruning method.
      */
     auto astar = components::make_auto_task_independent_component<
         eager_search::EagerSearch, SearchAlgorithm>(
-        astar_components.first,
-        true, // reopen_closed
-        astar_components.second, preferred, operator_pruner, lazy_evaluator,
-        OperatorCost::NORMAL, numeric_limits<int>::max(),
-        numeric_limits<double>::infinity(), "operator reduction A*",
-        utils::Verbosity::NORMAL);
+        astar_components.first, true, astar_components.second, preferred,
+        operator_pruner, lazy_evaluator, OperatorCost::NORMAL,
+        numeric_limits<int>::max(), numeric_limits<double>::infinity(),
+        "operator reduction A*", utils::Verbosity::NORMAL);
 
     /*
      * ------------------------------------------------------------
-     * 5. Bind everything to the actual task.
+     * 5. Bind task and run search.
      * ------------------------------------------------------------
-     *
-     * This recursively creates the real:
-     *
-     *   EagerSearch(task, ...)
-     *   LandmarkCutHeuristic(task, ...)
-     *   OperatorPruner(task, ...)
      */
     shared_ptr<SearchAlgorithm> search = astar->bind_task(task);
 
-    /*
-     * ------------------------------------------------------------
-     * 6. Run restricted A*.
-     * ------------------------------------------------------------
-     */
     cout << "Starting restricted A* search" << endl;
 
     search->search();
 
     /*
      * ------------------------------------------------------------
-     * 7. Return resulting plan.
+     * 6. Return improved plan.
      * ------------------------------------------------------------
      */
     if (search->found_solution()) {
@@ -157,10 +117,6 @@ Plan OperatorReduction::improve(
         return improved_plan;
     }
 
-    /*
-     * Normally this should not happen, because every operator used
-     * by the original plan is retained by OperatorPruner.
-     */
     cout << "Restricted A* found no solution. "
          << "Keeping original plan." << endl;
 

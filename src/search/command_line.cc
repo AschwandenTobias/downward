@@ -181,7 +181,12 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
                 parsed_options.plan_improver =
                     make_shared<ActionEliminationPlanStates>();
             } else if (improvement_arg == "operator_reduction") {
-                parsed_options.plan_improver = make_shared<OperatorReduction>();
+                parsed_options.plan_improver =
+                    make_shared<OperatorReduction>(OperatorReductionType::IDS);
+
+            } else if (improvement_arg == "operator_name_reduction") {
+                parsed_options.plan_improver = make_shared<OperatorReduction>(
+                    OperatorReductionType::NAMES);
             } else {
                 input_error(
                     "unknown plan improvement method: " + improvement_arg);

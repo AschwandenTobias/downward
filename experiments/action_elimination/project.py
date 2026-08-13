@@ -53,6 +53,14 @@ EVALUATIONS_PER_TIME = Attribute(
     "evaluations_per_time", min_wins=False, function=geometric_mean, digits=1
 )
 
+# AE: Added to calculate plan improvement time mean.
+PLAN_IMPROVEMENT_TIME = Attribute(
+    "plan_improvement_time",
+    min_wins=True,
+    function=geometric_mean,
+    digits=3,
+)
+
 UNSOLVABLE_TASKS = {
     f"mystery:prob{index:02d}.pddl"
     for index in [4, 5, 7, 8, 12, 16, 18, 21, 22, 23, 24]

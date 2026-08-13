@@ -5,6 +5,7 @@ import os
 import custom_parser
 import project
 
+
 REPO = project.get_repo_base()
 BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
 
@@ -30,12 +31,7 @@ else:
     # Quickly here still means at least 5 minutes since some of those are not solvable in that time.
     SUITE = [
         "blocks:probBLOCKS-4-0.pddl",
-        "blocks:probBLOCKS-5-0.pddl",
-        "blocks:probBLOCKS-16-2.pddl",
-        "blocks:probBLOCKS-17-0.pddl",
-        "blocks:probBLOCKS-15-0.pddl",
         "elevators-sat08-strips:p01.pddl",
-        "elevators-sat08-strips:p02.pddl",
     ]
 
     ENV = project.LocalEnvironment(processes=12)
@@ -117,7 +113,61 @@ CONFIGS = [
         "ae_plan_states",
     ],
 ),
+
+    # Operator-restricted optimal re-search.
+    (
+    "lama-first-operator-reduction",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+        "--plan-improvement",
+        "operator_reduction",
+    ],
+),
+(
+    "lama-first-operator-name-reduction",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+        "--plan-improvement",
+        "operator_name_reduction",
+    ],
+),
+    ( 
+    "astar-lmcut",
+    [
+        "--search",
+        "astar(lmcut())",
+    ],
+),
 ]
+
 
 BUILD_OPTIONS = []
 
@@ -128,6 +178,7 @@ DRIVER_OPTIONS = [
     "2G",
 ]
 
+
 # ---------------------------------------------------------------------------
 # Fast Downward revision
 # ---------------------------------------------------------------------------
@@ -135,6 +186,7 @@ DRIVER_OPTIONS = [
 REV_NICKS = [
     ("operator_reduction", ""),
 ]
+
 
 # ---------------------------------------------------------------------------
 # Report attributes
@@ -146,14 +198,17 @@ ATTRIBUTES = [
     "domain",
     "problem",
 
+    # Did it work?
     "coverage",
     "error",
 
+    # Plan quality.
     "cost",
     "plan_length",
 
+    # Performance.
     "search_time",
-    "plan_improvement_time",
+    project.PLAN_IMPROVEMENT_TIME,
     "total_time",
     "memory",
 ]
@@ -167,6 +222,7 @@ exp = project.FastDownwardExperiment(
     environment=ENV,
     revision_cache=REVISION_CACHE,
 )
+
 
 for config_nick, config in CONFIGS:
     for revision, revision_nick in REV_NICKS:
@@ -185,10 +241,12 @@ for config_nick, config in CONFIGS:
             driver_options=DRIVER_OPTIONS,
         )
 
+
 exp.add_suite(
     BENCHMARKS_DIR,
     SUITE,
 )
+
 
 # ---------------------------------------------------------------------------
 # Parsers

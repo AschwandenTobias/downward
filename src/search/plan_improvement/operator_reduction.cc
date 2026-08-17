@@ -9,6 +9,7 @@
 #include "../search_algorithm.h"
 #include "../state_registry.h"
 
+#include "../heuristics/blind_search_heuristic.h"
 #include "../heuristics/lm_cut_heuristic.h"
 #include "../heuristics/lm_cut_landmarks.h"
 #include "../search_algorithms/eager_search.h"
@@ -49,17 +50,23 @@ Plan OperatorReduction::improve(
         operator_pruner = make_shared<TaskIndependentOperatorNamePruner>(
             utils::Verbosity::NORMAL, plan);
     }
+    /*
     shared_ptr<components::TaskIndependentComponent<Evaluator>> lmcut =
         components::make_auto_task_independent_component<
             lm_cut_heuristic::LandmarkCutHeuristic, Evaluator>(
             true, true, true, "lmcut", utils::Verbosity::NORMAL);
-
+    */
+    shared_ptr<TaskIndependentEvaluator> blind =
+        components::make_auto_task_independent_component<
+            blind_search_heuristic::BlindSearchHeuristic, Evaluator>(
+            true, "blind", utils::Verbosity::NORMAL);
+    // Had to change this to blind aswell
     pair<
         shared_ptr<TaskIndependentOpenListFactory>,
         shared_ptr<TaskIndependentEvaluator>>
         astar_components =
             search_common::create_astar_open_list_factory_and_f_eval(
-                lmcut, utils::Verbosity::NORMAL);
+                blind, utils::Verbosity::NORMAL);
 
     vector<shared_ptr<components::TaskIndependentComponent<Evaluator>>>
         preferred;

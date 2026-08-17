@@ -47,10 +47,11 @@ Plan ActionEliminationPlanStates::improve(
     ActionElimination action_elimination;
     OperatorsProxy operators = task_proxy.get_operators();
     cout << "I am at the start of ae_plan_states" << endl;
-    Plan current_plan = action_elimination.improve(plan, task, state_registry);
-    // TODO: Version which runs first ae then the plan states version.
-    cout << "Did run ae as a base plan improvement method." << endl;
-    // Plan current_plan = plan;
+    // Plan current_plan = action_elimination.improve(plan, task,
+    // state_registry);
+    //  TODO: Version which runs first ae then the plan states version.
+    //  cout << "Did run ae as a base plan improvement method." << endl;
+    Plan current_plan = plan;
 
     bool improvement_found = true;
     cout << "Trying now additional reductions" << "\n";

@@ -10,10 +10,6 @@
 #include <unordered_set>
 #include <vector>
 
-// ---------------------------------------------------------------------------
-// Exact OperatorID-based pruning
-// ---------------------------------------------------------------------------
-
 class OperatorPruner : public PruningMethod {
     std::unordered_set<int> allowed_operator_ids;
 
@@ -42,10 +38,6 @@ protected:
 public:
     TaskIndependentOperatorPruner(utils::Verbosity verbosity, const Plan &plan);
 };
-
-// ---------------------------------------------------------------------------
-// Operator-name/schema-based pruning
-// ---------------------------------------------------------------------------
 
 class OperatorNamePruner : public PruningMethod {
     std::unordered_set<std::string> allowed_operator_names;

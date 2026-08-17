@@ -35,43 +35,31 @@ Plan OperatorReduction::improve(
     cout << "Starting operator reduction" << endl;
     cout << "Initial plan length: " << plan.size() << endl;
 
-    /*
-     * ------------------------------------------------------------
-     * 1. Select pruning strategy.
-     * ------------------------------------------------------------
-     */
     shared_ptr<components::TaskIndependentComponent<PruningMethod>>
         operator_pruner;
 
     if (reduction_type == OperatorReductionType::IDS) {
-        cout << "Using exact OperatorID reduction" << endl;
+        // cout << "Using exact OperatorID reduction" << endl;
 
         operator_pruner = make_shared<TaskIndependentOperatorPruner>(
             utils::Verbosity::NORMAL, plan);
     } else {
-        cout << "Using operator-name reduction" << endl;
+        // cout << "Using operator-name reduction" << endl;
 
         operator_pruner = make_shared<TaskIndependentOperatorNamePruner>(
             utils::Verbosity::NORMAL, plan);
     }
+    shared_ptr<components::TaskIndependentComponent<Evaluator>> lmcut =
+        components::make_auto_task_independent_component<
+            lm_cut_heuristic::LandmarkCutHeuristic, Evaluator>(
+            true, true, true, "lmcut", utils::Verbosity::NORMAL);
 
-    /*
-     * ------------------------------------------------------------
-     * 2. Create LM-cut.
-     * ------------------------------------------------------------
-     */
-    auto lmcut = components::make_auto_task_independent_component<
-        lm_cut_heuristic::LandmarkCutHeuristic, Evaluator>(
-        true, true, true, "lmcut", utils::Verbosity::NORMAL);
-
-    /*
-     * ------------------------------------------------------------
-     * 3. Build standard A* components.
-     * ------------------------------------------------------------
-     */
-    auto astar_components =
-        search_common::create_astar_open_list_factory_and_f_eval(
-            lmcut, utils::Verbosity::NORMAL);
+    pair<
+        shared_ptr<TaskIndependentOpenListFactory>,
+        shared_ptr<TaskIndependentEvaluator>>
+        astar_components =
+            search_common::create_astar_open_list_factory_and_f_eval(
+                lmcut, utils::Verbosity::NORMAL);
 
     vector<shared_ptr<components::TaskIndependentComponent<Evaluator>>>
         preferred;
@@ -79,34 +67,20 @@ Plan OperatorReduction::improve(
     shared_ptr<components::TaskIndependentComponent<Evaluator>> lazy_evaluator =
         nullptr;
 
-    /*
-     * ------------------------------------------------------------
-     * 4. Construct A* as EagerSearch.
-     * ------------------------------------------------------------
-     */
-    auto astar = components::make_auto_task_independent_component<
-        eager_search::EagerSearch, SearchAlgorithm>(
-        astar_components.first, true, astar_components.second, preferred,
-        operator_pruner, lazy_evaluator, OperatorCost::NORMAL,
-        numeric_limits<int>::max(), numeric_limits<double>::infinity(),
-        "operator reduction A*", utils::Verbosity::NORMAL);
+    shared_ptr<components::TaskIndependentComponent<SearchAlgorithm>> astar =
+        components::make_auto_task_independent_component<
+            eager_search::EagerSearch, SearchAlgorithm>(
+            astar_components.first, true, astar_components.second, preferred,
+            operator_pruner, lazy_evaluator, OperatorCost::NORMAL,
+            numeric_limits<int>::max(), numeric_limits<double>::infinity(),
+            "operator reduction A*", utils::Verbosity::NORMAL);
 
-    /*
-     * ------------------------------------------------------------
-     * 5. Bind task and run search.
-     * ------------------------------------------------------------
-     */
     shared_ptr<SearchAlgorithm> search = astar->bind_task(task);
 
     cout << "Starting restricted A* search" << endl;
 
     search->search();
 
-    /*
-     * ------------------------------------------------------------
-     * 6. Return improved plan.
-     * ------------------------------------------------------------
-     */
     if (search->found_solution()) {
         Plan improved_plan = search->get_plan();
 

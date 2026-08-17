@@ -103,15 +103,6 @@ Plan ActionEliminationPlanStates::improve(
                         improved_plan.end(), current_plan.begin() + k,
                         current_plan.end());
 
-                    /*cout << "Found cheaper reconnection.\n"
-                         << "Start action index: " << i << "\n"
-                         << "Matched state index: " << k << "\n"
-                         << "Old prefix cost: " << plan_states[k].prefix_cost
-                         << "\n"
-                         << "New prefix cost: " << simulated_cost << "\n"
-                         << "Old plan length: " << current_plan.size() << "\n"
-                         << "New plan length: " << improved_plan.size() << "\n";
-                    */
                     current_plan = std::move(improved_plan);
                     improvement_found = true;
                     break;

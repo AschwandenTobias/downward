@@ -8,10 +8,6 @@
 
 using namespace std;
 
-// ---------------------------------------------------------------------------
-// Exact OperatorID-based pruning
-// ---------------------------------------------------------------------------
-
 OperatorPruner::OperatorPruner(
     const shared_ptr<AbstractTask> &task, utils::Verbosity verbosity,
     const Plan &plan)
@@ -45,29 +41,14 @@ TaskIndependentOperatorPruner::create_task_specific_component(
     return make_shared<OperatorPruner>(task, verbosity, plan);
 }
 
-// ---------------------------------------------------------------------------
-// Operator-name/schema-based pruning
-// ---------------------------------------------------------------------------
-
 string OperatorNamePruner::get_operator_schema_name(
     const string &grounded_name) const {
-    /*
-     * Examples:
-     *
-     * "(move a b)"  -> "move"
-     * "move a b"    -> "move"
-     * "(load x y)"  -> "load"
-     * "load x y"    -> "load"
-     */
-
     size_t start = 0;
-
     if (!grounded_name.empty() && grounded_name[0] == '(') {
         start = 1;
     }
-
     size_t end = grounded_name.find(' ', start);
-
+    // AE: Thänks Chattyboi for pointing out this missing
     if (end == string::npos) {
         end = grounded_name.find(')', start);
     }
@@ -85,24 +66,9 @@ OperatorNamePruner::OperatorNamePruner(
     : PruningMethod(task, verbosity) {
     OperatorsProxy operators = task_proxy.get_operators();
 
-    /*
-     * Collect all operator schema names that occur in the original plan.
-     *
-     * Example:
-     *
-     * plan contains:
-     *   (move a b)
-     *   (load box1 truck1 depot)
-     *   (move b c)
-     *
-     * then:
-     *   allowed_operator_names = {"move", "load"}
-     */
     for (OperatorID operator_id : plan) {
         OperatorProxy op = operators[operator_id];
-
         string operator_name = get_operator_schema_name(op.get_name());
-
         allowed_operator_names.insert(operator_name);
     }
 }

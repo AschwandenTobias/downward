@@ -68,20 +68,49 @@ Plan MinimalReduction::improve(
         return plan;
     }
     const Plan &transformed_plan = search->get_plan();
+    // Added the cost here for debugging.
+    cout << "Transformed plan length: " << transformed_plan.size() << endl;
 
-    Plan reduced_plan;
-    cout << "Trying to transform into a working original plan" << endl;
+    int transformed_cost = 0;
 
     for (OperatorID transformed_id : transformed_plan) {
         int index = transformed_id.get_index();
 
-        // Even transformed IDs are take_i.
+        int op_cost = minimal_task->get_operator_cost(index, false);
+
+        cout << "Transformed operator " << index << ": "
+             << minimal_task->get_operator_name(index, false)
+             << " cost=" << op_cost << endl;
+
+        transformed_cost += op_cost;
+    }
+
+    cout << "Transformed plan cost: " << transformed_cost << endl;
+
+    Plan reduced_plan;
+    // Also for debugging.
+    TaskProxy original_task_proxy(*task);
+    OperatorsProxy original_operators = original_task_proxy.get_operators();
+
+    int decoded_cost = 0;
+
+    for (OperatorID transformed_id : transformed_plan) {
+        int index = transformed_id.get_index();
+
         if (index % 2 == 0) {
             int plan_position = index / 2;
 
-            reduced_plan.push_back(plan[plan_position]);
+            OperatorID original_id = plan[plan_position];
+
+            reduced_plan.push_back(original_id);
+
+            decoded_cost += original_operators[original_id].get_cost();
         }
     }
+
+    cout << "Decoded plan length: " << reduced_plan.size() << endl;
+
+    cout << "Decoded plan cost: " << decoded_cost << endl;
 
     return reduced_plan;
 }

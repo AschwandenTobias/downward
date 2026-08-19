@@ -220,7 +220,7 @@ ATTRIBUTES = [
     "cost",
     "plan_length",
     "search_time",
-    "plan_improvement_time",
+    project.PLAN_IMPROVEMENT_TIME,
     "total_time",
     "memory",
 ]

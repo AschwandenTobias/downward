@@ -31,7 +31,7 @@ int MinimalReductionTask::get_variable_domain_size(int var) const {
 
 int MinimalReductionTask::get_variable_axiom_layer(int var) const {
     if (var == position_variable) {
-        return -1;
+        return 0;
     } else {
         return parent->get_variable_axiom_layer(var);
     }
@@ -55,11 +55,15 @@ string MinimalReductionTask::get_fact_name(const FactPair &fact) const {
 
 bool MinimalReductionTask::are_facts_mutex(
     const FactPair &fact1, const FactPair &fact2) const {
+    if (fact1.var == position_variable && fact2.var == position_variable) {
+        return fact1.value != fact2.value;
+    }
+
     if (fact1.var == position_variable || fact2.var == position_variable) {
         return false;
-    } else {
-        return parent->are_facts_mutex(fact1, fact2);
     }
+
+    return parent->are_facts_mutex(fact1, fact2);
 }
 
 // Returns true for every second operator

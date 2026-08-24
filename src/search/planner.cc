@@ -77,7 +77,8 @@ int main(int argc, const char **argv) {
             search_algorithm->improve_plan(
                 *parsed_search_options.plan_improver);
         }
-        utils::g_timer.stop();
+        improvement_times.stop();
+        // utils::g_timer.stop();
         search_algorithm->save_plan_if_necessary();
         search_algorithm->print_statistics();
         utils::g_log << "Search time: " << search_timer << endl;

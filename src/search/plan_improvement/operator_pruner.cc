@@ -15,6 +15,9 @@ OperatorPruner::OperatorPruner(
     for (OperatorID operator_id : plan) {
         allowed_operator_ids.insert(operator_id.get_index());
     }
+    int number_of_reduced_operators = allowed_operator_ids.size();
+    utils::g_log << "Number of operators allowed in reduced search: "
+                 << number_of_reduced_operators << endl;
 }
 
 void OperatorPruner::prune(const State &, vector<OperatorID> &op_ids) {
@@ -26,7 +29,6 @@ void OperatorPruner::prune(const State &, vector<OperatorID> &op_ids) {
             remaining_operators.push_back(operator_id);
         }
     }
-
     op_ids = move(remaining_operators);
 }
 
@@ -71,6 +73,24 @@ OperatorNamePruner::OperatorNamePruner(
         string operator_name = get_operator_schema_name(op.get_name());
         allowed_operator_names.insert(operator_name);
     }
+
+    // After having the number of allowed schemas we have to get the actual
+    // number of operators.
+    int number_of_reduced_operators = 0;
+
+    for (OperatorProxy op : operators) {
+        string operator_name = get_operator_schema_name(op.get_name());
+
+        if (allowed_operator_names.find(operator_name) !=
+            allowed_operator_names.end()) {
+            ++number_of_reduced_operators;
+        }
+    }
+    int allowed_operator_name_schemas = allowed_operator_names.size();
+    utils::g_log << "Number of operator schemas allowed in reduced search: "
+                 << allowed_operator_name_schemas << endl;
+    utils::g_log << "Number of operators allowed in reduced search: "
+                 << number_of_reduced_operators << endl;
 }
 
 void OperatorNamePruner::prune(const State &, vector<OperatorID> &op_ids) {

@@ -68,54 +68,6 @@ CONFIGS = [
         ),
     ],
 ),
-    # Action elimination.
-    (
-    "lama-first-ae",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "ae",
-    ],
-),
-
-    # Action elimination using tracked plan states.
-    (
-    "lama-first-ae-plan-states",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "ae_plan_states",
-    ],
-),
-
     # Operator-restricted optimal re-search.
     (
     "lama-first-operator-reduction",
@@ -217,6 +169,9 @@ ATTRIBUTES = [
     "error",
     "cost",
     "plan_length",
+    "number_of_operators",
+    "number_of_reduced_operators",
+    "allowed_operator_name_schemas",
     "search_time",
     project.PLAN_IMPROVEMENT_TIME,
     "total_time",

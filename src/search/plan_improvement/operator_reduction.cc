@@ -34,19 +34,18 @@ Plan OperatorReduction::improve(
     (void)state_registry;
 
     cout << "Starting operator reduction" << endl;
-    cout << "Initial plan length: " << plan.size() << endl;
-
+    // cout << "Initial plan length: " << plan.size() << endl;
+    TaskProxy task_proxy(*task);
+    int number_of_operators = task_proxy.get_operators().size();
+    utils::g_log << "Number of operators in original task: "
+                 << number_of_operators << endl;
     shared_ptr<components::TaskIndependentComponent<PruningMethod>>
         operator_pruner;
 
     if (reduction_type == OperatorReductionType::IDS) {
-        // cout << "Using exact OperatorID reduction" << endl;
-
         operator_pruner = make_shared<TaskIndependentOperatorPruner>(
             utils::Verbosity::NORMAL, plan);
     } else {
-        // cout << "Using operator-name reduction" << endl;
-
         operator_pruner = make_shared<TaskIndependentOperatorNamePruner>(
             utils::Verbosity::NORMAL, plan);
     }
@@ -91,9 +90,9 @@ Plan OperatorReduction::improve(
     if (search->found_solution()) {
         Plan improved_plan = search->get_plan();
 
-        cout << "Restricted A* found a solution" << endl;
-        cout << "Old plan length: " << plan.size() << endl;
-        cout << "New plan length: " << improved_plan.size() << endl;
+        // cout << "Restricted A* found a solution" << endl;
+        // cout << "Old plan length: " << plan.size() << endl;
+        // cout << "New plan length: " << improved_plan.size() << endl;
 
         return improved_plan;
     }

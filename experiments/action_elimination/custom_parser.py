@@ -71,5 +71,20 @@ def get_parser():
         r"Plan improvement time: ([0-9.]+)s",
         type=float,
     )
+    parser.add_pattern(
+        "allowed_operator_name_schemas",
+        r"Number of operator schemas allowed in reduced search: (\d+)",
+        type=int,
+    )
+    parser.add_pattern(
+        "number_of_reduced_operators",
+        r"Number of operators allowed in reduced search: (\d+)",
+        type=int,
+    )
+    parser.add_pattern(
+        "number_of_operators",
+        r"Number of operators in original task: (\d+)",
+        type=int,
+    )
 
     return parser

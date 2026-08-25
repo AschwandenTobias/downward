@@ -40,6 +40,10 @@ private:
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
         StateRegistry &state_registry, bool apply_reductions);
 
+    std::vector<ReductionCandidate> ae_candidate_extractor(
+        const Plan &plan, const std::shared_ptr<AbstractTask> &task,
+        StateRegistry &state_registry, bool apply_reductions);
+
     PlanGraph build_graph(
         const Plan &plan, const std::vector<ReductionCandidate> &candidates,
         const TaskProxy &task_proxy, StateRegistry &state_registry);

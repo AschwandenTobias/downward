@@ -305,6 +305,143 @@ static PlanGraphNode *find_graph_node(PlanGraph &graph, StateID state_id) {
     return nullptr;
 }
 
+vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
+    const Plan &plan, const shared_ptr<AbstractTask> &task,
+    StateRegistry &state_registry, bool apply_reductions) {
+    vector<ReductionCandidate> reduction_candidates;
+
+    TaskProxy task_proxy(*task);
+    OperatorsProxy operators = task_proxy.get_operators();
+
+    Plan current_plan = plan;
+
+    State initial_state = state_registry.get_initial_state();
+
+    size_t i = 0;
+
+    while (i < current_plan.size()) {
+        /*
+         * Recompute the state before action i.
+         *
+         * This is important because current_plan may have changed
+         * during the greedy version.
+         */
+        State prefix_state = initial_state;
+
+        for (size_t prefix_index = 0; prefix_index < i; ++prefix_index) {
+            OperatorProxy prefix_operator =
+                operators[current_plan[prefix_index]];
+
+            prefix_state = state_registry.get_successor_state(
+                prefix_state, prefix_operator);
+        }
+
+        /*
+         * Try removing action i.
+         *
+         * current_state represents the simulated state after
+         * skipping action i and then greedily applying every
+         * later applicable action.
+         */
+        State current_state = prefix_state;
+
+        Plan candidate_segment;
+        size_t candidate_cost = 0;
+
+        /*
+         * We don't add current_plan[i].
+         *
+         * That is exactly the action AE is trying to remove.
+         */
+        for (size_t j = i + 1; j < current_plan.size(); ++j) {
+            OperatorProxy current_operator = operators[current_plan[j]];
+
+            if (!is_applicable(current_operator, current_state)) {
+                continue;
+            }
+
+            current_state = state_registry.get_successor_state(
+                current_state, current_operator);
+
+            candidate_segment.push_back(current_plan[j]);
+
+            candidate_cost += static_cast<size_t>(current_operator.get_cost());
+        }
+
+        /*
+         * If the resulting state satisfies the goal,
+         * AE has found a valid reduction.
+         */
+        if (is_goal_state(task_proxy, current_state)) {
+            /*
+             * We use current_state itself as the candidate endpoint.
+             *
+             * Unlike the plan-state candidate extractor, this endpoint
+             * does not have to occur anywhere on the original plan.
+             */
+            ReductionCandidate candidate{
+                i,
+                current_plan.size(),
+                prefix_state.get_id(),
+                current_state.get_id(),
+                candidate_segment,
+                candidate_cost};
+
+            reduction_candidates.push_back(candidate);
+
+            /*
+             * Static mode:
+             *
+             * Just record the reduction and continue looking for
+             * other AE reductions on the unchanged plan.
+             */
+            if (!apply_reductions) {
+                ++i;
+                continue;
+            }
+
+            /*
+             * Greedy AE mode:
+             *
+             * Construct:
+             *
+             * original prefix [0, i)
+             * +
+             * every applicable suffix action
+             *
+             * This is exactly equivalent to removing action i and all
+             * later actions that became inapplicable.
+             */
+            Plan improved_plan;
+
+            improved_plan.insert(
+                improved_plan.end(), current_plan.begin(),
+                current_plan.begin() + i);
+
+            improved_plan.insert(
+                improved_plan.end(), candidate_segment.begin(),
+                candidate_segment.end());
+
+            current_plan = std::move(improved_plan);
+
+            /*
+             * Retest the same position i on the newly shortened plan.
+             *
+             * This matches your modified AE implementation, where i
+             * is not incremented after a successful reduction.
+             */
+            continue;
+        }
+
+        /*
+         * No reduction at i.
+         */
+        ++i;
+    }
+
+    return reduction_candidates;
+}
+
 static PlanGraphNode &get_or_create_graph_node(
     PlanGraph &graph, StateID state_id) {
     PlanGraphNode *node = find_graph_node(graph, state_id);
@@ -421,22 +558,38 @@ Plan ActionEliminationPlanStates::improve(
     cout << "\n\n\n!!!!! I am at the start of ae_plan_states !!!!\n" << endl;
     vector<ReductionCandidate> reduction_candidates =
         candidate_extractor(plan, task, state_registry, false);
-    cout << "Number of reduction candidates: " << reduction_candidates.size()
-         << endl;
-    vector<ReductionCandidate> greedy_candidates =
+    cout << "Number of reduction candidates after the first extractor: "
+         << reduction_candidates.size() << endl;
+    vector<ReductionCandidate> greedy_plan_state_candidates =
         candidate_extractor(plan, task, state_registry, true);
 
+    vector<ReductionCandidate> ae_candidates =
+        ae_candidate_extractor(plan, task, state_registry, false);
+
+    vector<ReductionCandidate> greedy_ae_candidates =
+        ae_candidate_extractor(plan, task, state_registry, true);
+
     reduction_candidates.insert(
-        reduction_candidates.end(), greedy_candidates.begin(),
-        greedy_candidates.end());
+        reduction_candidates.end(), greedy_plan_state_candidates.begin(),
+        greedy_plan_state_candidates.end());
 
     cout << "Number of reduction candidates after the greedy: "
          << reduction_candidates.size() << endl;
 
+    reduction_candidates.insert(
+        reduction_candidates.end(), ae_candidates.begin(), ae_candidates.end());
+
+    cout << "Number of reduction candidates after the ae candidates: "
+         << reduction_candidates.size() << endl;
+
+    reduction_candidates.insert(
+        reduction_candidates.end(), greedy_ae_candidates.begin(),
+        greedy_ae_candidates.end());
+
+    cout << "Number of reduction candidates after the greedy ae candidates: "
+         << reduction_candidates.size() << endl;
     PlanGraph graph =
         build_graph(plan, reduction_candidates, task_proxy, state_registry);
-
-    cout << "Candidates: " << reduction_candidates.size() << endl;
 
     cout << "Graph states: " << graph.size() << endl;
 

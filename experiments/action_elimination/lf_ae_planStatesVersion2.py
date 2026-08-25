@@ -31,9 +31,6 @@ else:
     SUITE = [
         "blocks:probBLOCKS-4-0.pddl",
         "blocks:probBLOCKS-5-0.pddl",
-        "blocks:probBLOCKS-16-2.pddl",
-        "blocks:probBLOCKS-17-0.pddl",
-        "blocks:probBLOCKS-15-0.pddl",
         "elevators-sat08-strips:p01.pddl",
         "elevators-sat08-strips:p02.pddl",
     ]
@@ -141,19 +138,18 @@ REV_NICKS = [
 # ---------------------------------------------------------------------------
 
 ATTRIBUTES = [
-    # Identification.
     "algorithm",
     "domain",
     "problem",
-
     "coverage",
     "error",
-
     "cost",
     "plan_length",
-
+    "number_of_operators",
+    "number_of_reduced_operators",
+    "allowed_operator_name_schemas",
     "search_time",
-    "plan_improvement_time",
+    project.PLAN_IMPROVEMENT_TIME,
     "total_time",
     "memory",
 ]

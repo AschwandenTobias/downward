@@ -86,5 +86,4 @@ def get_parser():
         r"Number of operators in original task: (\d+)",
         type=int,
     )
-
     return parser

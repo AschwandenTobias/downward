@@ -40,83 +40,128 @@ vector<StateInfo> extract_state_info_from_plan(
     return plan_states;
 }
 
+vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
+    const Plan &plan, const std::shared_ptr<AbstractTask> &task,
+    StateRegistry &state_registry, bool apply_reductions) {
+    vector<ReductionCandidate> reduction_candidates;
+
+    TaskProxy task_proxy(*task);
+    OperatorsProxy operators = task_proxy.get_operators();
+
+    Plan current_plan = plan;
+
+    // Get all the states with prefix cost from the original plan.
+    vector<StateInfo> plan_states =
+        extract_state_info_from_plan(current_plan, task_proxy, state_registry);
+
+    size_t i = 0;
+
+    while (i < current_plan.size()) {
+        State simulated_state = plan_states[i].state;
+        // Contains the applicable actions.
+        Plan candidate_segment;
+        size_t candidate_cost = 0;
+
+        bool reduction_applied = false;
+
+        for (size_t j = i + 1; j < current_plan.size(); ++j) {
+            OperatorProxy op = operators[current_plan[j]];
+
+            if (!is_applicable(op, simulated_state)) {
+                continue;
+            }
+
+            simulated_state =
+                state_registry.get_successor_state(simulated_state, op);
+
+            candidate_segment.push_back(current_plan[j]);
+
+            candidate_cost += op.get_cost();
+
+            for (size_t k = j + 1; k < plan_states.size(); ++k) {
+                if (simulated_state != plan_states[k].state) {
+                    continue;
+                }
+                size_t old_segment_cost =
+                    plan_states[k].prefix_cost - plan_states[i].prefix_cost;
+
+                if (candidate_cost >= old_segment_cost) {
+                    continue;
+                }
+
+                ReductionCandidate candidate{
+                    i,
+                    k,
+                    plan_states[i].state.get_id(),
+                    plan_states[k].state.get_id(),
+                    candidate_segment,
+                    candidate_cost};
+
+                reduction_candidates.push_back(candidate);
+
+                // If we are in the run that does not greedily applies
+                // reductions, continue, otherwise apply the reduction.
+                if (!apply_reductions) {
+                    continue;
+                }
+                Plan improved_plan;
+                improved_plan.insert(
+                    improved_plan.end(), current_plan.begin(),
+                    current_plan.begin() + i);
+
+                improved_plan.insert(
+                    improved_plan.end(), candidate_segment.begin(),
+                    candidate_segment.end());
+
+                improved_plan.insert(
+                    improved_plan.end(), current_plan.begin() + k,
+                    current_plan.end());
+
+                current_plan = std::move(improved_plan);
+
+                // Since stuff has changed, we have to recalculate the prefix
+                // costs etc.
+                plan_states = extract_state_info_from_plan(
+                    current_plan, task_proxy, state_registry);
+
+                reduction_applied = true;
+                break;
+            }
+            if (reduction_applied) {
+                break;
+            }
+        }
+        if (reduction_applied) {
+            continue;
+        } else {
+            // Only here increment i, since we otherwise skip some improvements
+            ++i;
+        }
+    }
+    return reduction_candidates;
+}
+
 Plan ActionEliminationPlanStates::improve(
     const Plan &plan, const std::shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
     TaskProxy task_proxy(*task);
-    ActionElimination action_elimination;
     OperatorsProxy operators = task_proxy.get_operators();
-    cout << "I am at the start of ae_plan_states" << endl;
-    // Plan current_plan = action_elimination.improve(plan, task,
-    // state_registry);
-    //  TODO: Version which runs first ae then the plan states version.
-    //  cout << "Did run ae as a base plan improvement method." << endl;
-    Plan current_plan = plan;
+    cout << "\n\n\n!!!!! I am at the start of ae_plan_states !!!!\n" << endl;
+    vector<ReductionCandidate> reduction_candidates =
+        candidate_extractor(plan, task, state_registry, false);
+    cout << "Number of reduction candidates: " << reduction_candidates.size()
+         << "\n\n"
+         << endl;
+    vector<ReductionCandidate> greedy_candidates =
+        candidate_extractor(plan, task, state_registry, true);
 
-    bool improvement_found = true;
-    cout << "Trying now additional reductions" << "\n";
-    while (improvement_found) {
-        improvement_found = false;
-        vector<StateInfo> plan_states = extract_state_info_from_plan(
-            current_plan, task_proxy, state_registry);
-        for (size_t i = 0; i < current_plan.size(); ++i) {
-            State simulated_state = plan_states[i].state;
-            size_t simulated_cost = plan_states[i].prefix_cost;
+    reduction_candidates.insert(
+        reduction_candidates.end(), greedy_candidates.begin(),
+        greedy_candidates.end());
 
-            Plan candidate_segment;
+    cout << "Number of reduction candidates after the greedy: "
+         << reduction_candidates.size() << "\n\n"
+         << endl;
 
-            for (size_t j = i + 1; j < current_plan.size(); ++j) {
-                OperatorProxy op = operators[current_plan[j]];
-
-                if (!is_applicable(op, simulated_state)) {
-                    continue;
-                }
-
-                simulated_state =
-                    state_registry.get_successor_state(simulated_state, op);
-
-                simulated_cost += op.get_cost();
-                candidate_segment.push_back(current_plan[j]);
-
-                for (size_t k = i + 1; k < plan_states.size(); ++k) {
-                    if (simulated_state != plan_states[k].state) {
-                        continue;
-                    }
-                    // cout << "Am on a node from the original plan" << "\n";
-                    if (simulated_cost >= plan_states[k].prefix_cost) {
-                        // cout << "But simulated cost: " << simulated_cost
-                        //     << ", was higher than prefix cost: "
-                        //    << plan_states[k].prefix_cost << "\n";
-                        continue;
-                    }
-
-                    Plan improved_plan;
-
-                    improved_plan.insert(
-                        improved_plan.end(), current_plan.begin(),
-                        current_plan.begin() + i);
-
-                    improved_plan.insert(
-                        improved_plan.end(), candidate_segment.begin(),
-                        candidate_segment.end());
-
-                    improved_plan.insert(
-                        improved_plan.end(), current_plan.begin() + k,
-                        current_plan.end());
-
-                    current_plan = std::move(improved_plan);
-                    improvement_found = true;
-                    break;
-                }
-
-                if (improvement_found) {
-                    break;
-                }
-            }
-            if (improvement_found) {
-                break;
-            }
-        }
-    }
-    return current_plan;
+    return plan;
 }

@@ -9,6 +9,7 @@
 #include "../task_utils/task_properties.h"
 
 #include <algorithm>
+#include <chrono>
 #include <limits>
 #include <queue>
 #include <set>
@@ -211,7 +212,7 @@ static unordered_map<int, vector<size_t>> build_state_position_lookup(
 
 vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
     const Plan &plan, const shared_ptr<AbstractTask> &task,
-    StateRegistry &state_registry, bool apply_reductions) {
+    StateRegistry &state_registry, bool apply_reductions, size_t start_index) {
     vector<ReductionCandidate> reduction_candidates;
 
     TaskProxy task_proxy(*task);
@@ -234,7 +235,7 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
     unordered_map<int, vector<size_t>> state_positions =
         build_state_position_lookup(plan_states);
 
-    size_t i = 0;
+    size_t i = start_index;
 
     while (i < current_plan.size()) {
         State simulated_state = plan_states[i].state;
@@ -385,7 +386,7 @@ static PlanGraphNode *find_graph_node(PlanGraph &graph, StateID state_id) {
 
 vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
     const Plan &plan, const shared_ptr<AbstractTask> &task,
-    StateRegistry &state_registry, bool apply_reductions) {
+    StateRegistry &state_registry, bool apply_reductions, size_t start_index) {
     vector<ReductionCandidate> reduction_candidates;
 
     TaskProxy task_proxy(*task);
@@ -393,24 +394,32 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
 
     Plan current_plan = plan;
 
-    State initial_state = state_registry.get_initial_state();
+    State prefix_state = state_registry.get_initial_state();
 
-    size_t i = 0;
+    /*
+     * We only have to compute the prefix once in order to
+     * reach start_index.
+     */
+    for (size_t prefix_index = 0; prefix_index < start_index; ++prefix_index) {
+        OperatorProxy prefix_operator = operators[current_plan[prefix_index]];
+
+        prefix_state =
+            state_registry.get_successor_state(prefix_state, prefix_operator);
+    }
+
+    size_t i = start_index;
 
     while (i < current_plan.size()) {
-        State prefix_state = initial_state;
-
-        for (size_t prefix_index = 0; prefix_index < i; ++prefix_index) {
-            OperatorProxy prefix_operator =
-                operators[current_plan[prefix_index]];
-
-            prefix_state = state_registry.get_successor_state(
-                prefix_state, prefix_operator);
-        }
+        /*
+         * Try deleting current_plan[i].
+         *
+         * prefix_state is already exactly the state before i.
+         */
         State current_state = prefix_state;
 
         Plan candidate_segment;
         size_t candidate_cost = 0;
+
         for (size_t j = i + 1; j < current_plan.size(); ++j) {
             OperatorProxy current_operator = operators[current_plan[j]];
 
@@ -437,11 +446,34 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
 
             reduction_candidates.push_back(candidate);
 
+            /*
+             * Static mode:
+             *
+             * We do NOT change current_plan.
+             *
+             * Therefore action i still belongs to the prefix
+             * when we move on to i + 1.
+             */
             if (!apply_reductions) {
+                OperatorProxy prefix_operator = operators[current_plan[i]];
+
+                prefix_state = state_registry.get_successor_state(
+                    prefix_state, prefix_operator);
+
                 ++i;
+
                 continue;
             }
 
+            /*
+             * Greedy mode:
+             *
+             * Replace the current plan by:
+             *
+             * prefix [0, i)
+             * +
+             * applicable suffix actions.
+             */
             Plan improved_plan;
 
             improved_plan.insert(
@@ -454,36 +486,65 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
 
             current_plan = std::move(improved_plan);
 
+            /*
+             * Important:
+             *
+             * We retry the SAME i.
+             *
+             * The prefix [0, i) did not change, so prefix_state
+             * is still exactly correct. No recomputation needed.
+             */
             continue;
         }
+
+        /*
+         * No reduction was possible at i.
+         *
+         * Therefore action i remains part of the plan.
+         * Advance prefix_state by applying it once.
+         */
+        OperatorProxy prefix_operator = operators[current_plan[i]];
+
+        prefix_state =
+            state_registry.get_successor_state(prefix_state, prefix_operator);
+
         ++i;
     }
 
     return reduction_candidates;
 }
 
-static PlanGraphNode &get_or_create_graph_node(
-    PlanGraph &graph, StateID state_id) {
-    PlanGraphNode *node = find_graph_node(graph, state_id);
+static size_t get_or_create_graph_node(
+    PlanGraph &graph, unordered_map<int, size_t> &node_indices,
+    StateID state_id) {
+    int state_value = state_id.get_value();
 
-    if (node != nullptr) {
-        return *node;
+    unordered_map<int, size_t>::const_iterator it =
+        node_indices.find(state_value);
+
+    if (it != node_indices.end()) {
+        return it->second;
     }
+
+    size_t new_index = graph.size();
 
     graph.push_back({state_id, {}});
 
-    return graph.back();
+    node_indices[state_value] = new_index;
+
+    return new_index;
 }
 
 static void add_edge(
-    PlanGraph &graph, StateID start_state, StateID end_state, OperatorID action,
-    size_t cost) {
-    PlanGraphNode &node = get_or_create_graph_node(graph, start_state);
+    PlanGraph &graph, unordered_map<int, size_t> &node_indices,
+    StateID start_state, StateID end_state, OperatorID action, size_t cost) {
+    size_t start_index =
+        get_or_create_graph_node(graph, node_indices, start_state);
 
-    /*
-     * Same state + same operator means exactly
-     * the same deterministic transition.
-     */
+    get_or_create_graph_node(graph, node_indices, end_state);
+
+    PlanGraphNode &node = graph[start_index];
+
     for (const PlanGraphEdge &edge : node.outgoing_edges) {
         if (edge.action == action) {
             return;
@@ -491,8 +552,6 @@ static void add_edge(
     }
 
     node.outgoing_edges.push_back({end_state, action, cost});
-
-    get_or_create_graph_node(graph, end_state);
 }
 
 static size_t count_graph_edges(const PlanGraph &graph) {
@@ -510,11 +569,13 @@ PlanGraph ActionEliminationPlanStates::build_graph(
     const TaskProxy &task_proxy, StateRegistry &state_registry) {
     PlanGraph graph;
 
+    unordered_map<int, size_t> node_indices;
+
     OperatorsProxy operators = task_proxy.get_operators();
 
     State current_state = state_registry.get_initial_state();
 
-    get_or_create_graph_node(graph, current_state.get_id());
+    get_or_create_graph_node(graph, node_indices, current_state.get_id());
 
     for (OperatorID op_id : plan) {
         OperatorProxy op = operators[op_id];
@@ -523,8 +584,8 @@ PlanGraph ActionEliminationPlanStates::build_graph(
             state_registry.get_successor_state(current_state, op);
 
         add_edge(
-            graph, current_state.get_id(), next_state.get_id(), op_id,
-            static_cast<size_t>(op.get_cost()));
+            graph, node_indices, current_state.get_id(), next_state.get_id(),
+            op_id, static_cast<size_t>(op.get_cost()));
 
         current_state = next_state;
     }
@@ -540,8 +601,8 @@ PlanGraph ActionEliminationPlanStates::build_graph(
                 state_registry.get_successor_state(candidate_state, op);
 
             add_edge(
-                graph, candidate_state.get_id(), next_state.get_id(), op_id,
-                static_cast<size_t>(op.get_cost()));
+                graph, node_indices, candidate_state.get_id(),
+                next_state.get_id(), op_id, static_cast<size_t>(op.get_cost()));
 
             candidate_state = next_state;
         }
@@ -554,49 +615,167 @@ Plan ActionEliminationPlanStates::improve(
     const Plan &plan, const std::shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry) {
     TaskProxy task_proxy(*task);
-    OperatorsProxy operators = task_proxy.get_operators();
-    cout << "\n\n\n!!!!! I am at the start of ae_plan_states !!!!\n" << endl;
-    vector<ReductionCandidate> reduction_candidates =
-        candidate_extractor(plan, task, state_registry, false);
-    cout << "Number of reduction candidates after the first extractor: "
-         << reduction_candidates.size() << endl;
+
+    cout << "\n\n!!!!! I am at the start of ae_plan_states !!!!!\n" << endl;
+
+    vector<ReductionCandidate> reduction_candidates;
+
+    // ============================================================
+    // 1. Greedy plan-state extraction
+    // ============================================================
+
+    chrono::steady_clock::time_point greedy_plan_states_start =
+        chrono::steady_clock::now();
+
     vector<ReductionCandidate> greedy_plan_state_candidates =
-        candidate_extractor(plan, task, state_registry, true);
+        candidate_extractor(plan, task, state_registry, true, 0);
 
-    vector<ReductionCandidate> ae_candidates =
-        ae_candidate_extractor(plan, task, state_registry, false);
+    chrono::steady_clock::time_point greedy_plan_states_end =
+        chrono::steady_clock::now();
 
-    vector<ReductionCandidate> greedy_ae_candidates =
-        ae_candidate_extractor(plan, task, state_registry, true);
+    cout << "Greedy plan-state time: "
+         << chrono::duration<double>(
+                greedy_plan_states_end - greedy_plan_states_start)
+                .count()
+         << "s" << endl;
 
+    cout << "Greedy plan-state candidates: "
+         << greedy_plan_state_candidates.size() << endl;
+
+    // ============================================================
+    // 2. Static plan-state extraction
+    //
+    // Only necessary if greedy found something.
+    // Start where greedy found its first reduction because all
+    // earlier positions were already checked on the original plan.
+    // ============================================================
+
+    if (!greedy_plan_state_candidates.empty()) {
+        size_t first_reduction_index =
+            greedy_plan_state_candidates.front().start_index;
+
+        chrono::steady_clock::time_point static_plan_states_start =
+            chrono::steady_clock::now();
+
+        vector<ReductionCandidate> static_plan_state_candidates =
+            candidate_extractor(
+                plan, task, state_registry, false, first_reduction_index);
+
+        chrono::steady_clock::time_point static_plan_states_end =
+            chrono::steady_clock::now();
+
+        cout << "Static plan-state time: "
+             << chrono::duration<double>(
+                    static_plan_states_end - static_plan_states_start)
+                    .count()
+             << "s" << endl;
+
+        cout << "Static plan-state candidates: "
+             << static_plan_state_candidates.size() << endl;
+
+        reduction_candidates.insert(
+            reduction_candidates.end(), static_plan_state_candidates.begin(),
+            static_plan_state_candidates.end());
+
+    } else {
+        cout << "Static plan-state extraction skipped." << endl;
+    }
+
+    // The greedy candidates are useful as well.
     reduction_candidates.insert(
         reduction_candidates.end(), greedy_plan_state_candidates.begin(),
         greedy_plan_state_candidates.end());
 
-    cout << "Number of reduction candidates after the greedy: "
-         << reduction_candidates.size() << endl;
+    // ============================================================
+    // 3. Greedy AE extraction
+    // ============================================================
 
-    reduction_candidates.insert(
-        reduction_candidates.end(), ae_candidates.begin(), ae_candidates.end());
+    chrono::steady_clock::time_point greedy_ae_start =
+        chrono::steady_clock::now();
 
-    cout << "Number of reduction candidates after the ae candidates: "
-         << reduction_candidates.size() << endl;
+    vector<ReductionCandidate> greedy_ae_candidates =
+        ae_candidate_extractor(plan, task, state_registry, true, 0);
+
+    chrono::steady_clock::time_point greedy_ae_end =
+        chrono::steady_clock::now();
+
+    cout << "Greedy AE time: "
+         << chrono::duration<double>(greedy_ae_end - greedy_ae_start).count()
+         << "s" << endl;
+
+    cout << "Greedy AE candidates: " << greedy_ae_candidates.size() << endl;
+
+    // ============================================================
+    // 4. Static AE extraction
+    // ============================================================
+
+    if (!greedy_ae_candidates.empty()) {
+        size_t first_reduction_index = greedy_ae_candidates.front().start_index;
+
+        chrono::steady_clock::time_point static_ae_start =
+            chrono::steady_clock::now();
+
+        vector<ReductionCandidate> static_ae_candidates =
+            ae_candidate_extractor(
+                plan, task, state_registry, false, first_reduction_index);
+
+        chrono::steady_clock::time_point static_ae_end =
+            chrono::steady_clock::now();
+
+        cout
+            << "Static AE time: "
+            << chrono::duration<double>(static_ae_end - static_ae_start).count()
+            << "s" << endl;
+
+        cout << "Static AE candidates: " << static_ae_candidates.size() << endl;
+
+        reduction_candidates.insert(
+            reduction_candidates.end(), static_ae_candidates.begin(),
+            static_ae_candidates.end());
+
+    } else {
+        cout << "Static AE extraction skipped." << endl;
+    }
 
     reduction_candidates.insert(
         reduction_candidates.end(), greedy_ae_candidates.begin(),
         greedy_ae_candidates.end());
 
-    cout << "Number of reduction candidates after the greedy ae candidates: "
-         << reduction_candidates.size() << endl;
+    cout << "Total candidates: " << reduction_candidates.size() << endl;
+
+    // ============================================================
+    // 5. Graph construction
+    // ============================================================
+
+    chrono::steady_clock::time_point graph_start = chrono::steady_clock::now();
+
     PlanGraph graph =
         build_graph(plan, reduction_candidates, task_proxy, state_registry);
+
+    chrono::steady_clock::time_point graph_end = chrono::steady_clock::now();
+
+    cout << "Graph construction time: "
+         << chrono::duration<double>(graph_end - graph_start).count() << "s"
+         << endl;
 
     cout << "Graph states: " << graph.size() << endl;
 
     cout << "Graph edges: " << count_graph_edges(graph) << endl;
 
-    // Now lets run Dijkstra to find the shortest plan.
+    // ============================================================
+    // 6. Dijkstra
+    // ============================================================
+
+    chrono::steady_clock::time_point dijkstra_start =
+        chrono::steady_clock::now();
+
     Plan improved_plan = find_shortest_plan(graph, task_proxy, state_registry);
+
+    chrono::steady_clock::time_point dijkstra_end = chrono::steady_clock::now();
+
+    cout << "Dijkstra time: "
+         << chrono::duration<double>(dijkstra_end - dijkstra_start).count()
+         << "s" << endl;
 
     cout << "Original plan length: " << plan.size() << endl;
 

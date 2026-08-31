@@ -38,11 +38,13 @@ class ActionEliminationPlanStates : public PlanImprover {
 private:
     std::vector<ReductionCandidate> candidate_extractor(
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
-        StateRegistry &state_registry, bool apply_reductions);
+        StateRegistry &state_registry, bool apply_reductions,
+        size_t start_index = 0);
 
     std::vector<ReductionCandidate> ae_candidate_extractor(
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
-        StateRegistry &state_registry, bool apply_reductions);
+        StateRegistry &state_registry, bool apply_reductions,
+        size_t start_index = 0);
 
     PlanGraph build_graph(
         const Plan &plan, const std::vector<ReductionCandidate> &candidates,

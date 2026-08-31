@@ -8,9 +8,11 @@
 
 #include "../task_utils/task_properties.h"
 
+#include <algorithm>
 #include <limits>
 #include <queue>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
@@ -194,8 +196,21 @@ static vector<StateInfo> extract_state_info_from_plan(
     return plan_states;
 }
 
+static unordered_map<int, vector<size_t>> build_state_position_lookup(
+    const vector<StateInfo> &plan_states) {
+    unordered_map<int, vector<size_t>> state_positions;
+
+    for (size_t k = 0; k < plan_states.size(); ++k) {
+        int state_id = plan_states[k].state.get_id().get_value();
+
+        state_positions[state_id].push_back(k);
+    }
+
+    return state_positions;
+}
+
 vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
-    const Plan &plan, const std::shared_ptr<AbstractTask> &task,
+    const Plan &plan, const shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry, bool apply_reductions) {
     vector<ReductionCandidate> reduction_candidates;
 
@@ -204,15 +219,26 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
 
     Plan current_plan = plan;
 
-    // Get all the states with prefix cost from the original plan.
     vector<StateInfo> plan_states =
         extract_state_info_from_plan(current_plan, task_proxy, state_registry);
+
+    /*
+     * Maps:
+     *
+     * StateID -> all positions in the current plan
+     *            where this state occurs.
+     *
+     * The vectors of positions are automatically sorted
+     * because we insert them in increasing order.
+     */
+    unordered_map<int, vector<size_t>> state_positions =
+        build_state_position_lookup(plan_states);
 
     size_t i = 0;
 
     while (i < current_plan.size()) {
         State simulated_state = plan_states[i].state;
-        // Contains the applicable actions.
+
         Plan candidate_segment;
         size_t candidate_cost = 0;
 
@@ -230,12 +256,44 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
 
             candidate_segment.push_back(current_plan[j]);
 
-            candidate_cost += op.get_cost();
+            candidate_cost += static_cast<size_t>(op.get_cost());
 
-            for (size_t k = j + 1; k < plan_states.size(); ++k) {
-                if (simulated_state != plan_states[k].state) {
-                    continue;
-                }
+            /*
+             * Instead of scanning:
+             *
+             *     k = j + 1 ... plan_states.size()
+             *
+             * look up only the positions that contain
+             * simulated_state.
+             */
+            int simulated_state_id = simulated_state.get_id().get_value();
+
+            unordered_map<int, vector<size_t>>::const_iterator state_it =
+                state_positions.find(simulated_state_id);
+
+            /*
+             * This simulated state does not occur anywhere
+             * on the current plan.
+             */
+            if (state_it == state_positions.end()) {
+                continue;
+            }
+
+            const vector<size_t> &matching_positions = state_it->second;
+
+            /*
+             * We only want reconnect positions k > j.
+             *
+             * Because matching_positions is sorted,
+             * upper_bound jumps directly to the first
+             * matching position greater than j.
+             */
+            vector<size_t>::const_iterator k_it = upper_bound(
+                matching_positions.begin(), matching_positions.end(), j);
+
+            for (; k_it != matching_positions.end(); ++k_it) {
+                size_t k = *k_it;
+
                 size_t old_segment_cost =
                     plan_states[k].prefix_cost - plan_states[i].prefix_cost;
 
@@ -253,12 +311,22 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
 
                 reduction_candidates.push_back(candidate);
 
-                // If we are in the run that does not greedily applies
-                // reductions, continue, otherwise apply the reduction.
+                /*
+                 * Static pass:
+                 *
+                 * Store all candidates and keep searching.
+                 */
                 if (!apply_reductions) {
                     continue;
                 }
+
+                /*
+                 * Greedy pass:
+                 *
+                 * Apply the first reduction found.
+                 */
                 Plan improved_plan;
+
                 improved_plan.insert(
                     improved_plan.end(), current_plan.begin(),
                     current_plan.begin() + i);
@@ -273,25 +341,36 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
 
                 current_plan = std::move(improved_plan);
 
-                // Since stuff has changed, we have to recalculate the prefix
-                // costs etc.
+                /*
+                 * Since the plan changed, both the plan-state
+                 * information AND the lookup table are now
+                 * outdated.
+                 */
                 plan_states = extract_state_info_from_plan(
                     current_plan, task_proxy, state_registry);
+
+                state_positions = build_state_position_lookup(plan_states);
 
                 reduction_applied = true;
                 break;
             }
+
             if (reduction_applied) {
                 break;
             }
         }
+
+        /*
+         * If we applied a reduction, retry the same i
+         * on the changed plan.
+         */
         if (reduction_applied) {
             continue;
-        } else {
-            // Only here increment i, since we otherwise skip some improvements
-            ++i;
         }
+
+        ++i;
     }
+
     return reduction_candidates;
 }
 
@@ -301,7 +380,6 @@ static PlanGraphNode *find_graph_node(PlanGraph &graph, StateID state_id) {
             return &node;
         }
     }
-
     return nullptr;
 }
 
@@ -320,12 +398,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
     size_t i = 0;
 
     while (i < current_plan.size()) {
-        /*
-         * Recompute the state before action i.
-         *
-         * This is important because current_plan may have changed
-         * during the greedy version.
-         */
         State prefix_state = initial_state;
 
         for (size_t prefix_index = 0; prefix_index < i; ++prefix_index) {
@@ -335,24 +407,10 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
             prefix_state = state_registry.get_successor_state(
                 prefix_state, prefix_operator);
         }
-
-        /*
-         * Try removing action i.
-         *
-         * current_state represents the simulated state after
-         * skipping action i and then greedily applying every
-         * later applicable action.
-         */
         State current_state = prefix_state;
 
         Plan candidate_segment;
         size_t candidate_cost = 0;
-
-        /*
-         * We don't add current_plan[i].
-         *
-         * That is exactly the action AE is trying to remove.
-         */
         for (size_t j = i + 1; j < current_plan.size(); ++j) {
             OperatorProxy current_operator = operators[current_plan[j]];
 
@@ -368,17 +426,7 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
             candidate_cost += static_cast<size_t>(current_operator.get_cost());
         }
 
-        /*
-         * If the resulting state satisfies the goal,
-         * AE has found a valid reduction.
-         */
         if (is_goal_state(task_proxy, current_state)) {
-            /*
-             * We use current_state itself as the candidate endpoint.
-             *
-             * Unlike the plan-state candidate extractor, this endpoint
-             * does not have to occur anywhere on the original plan.
-             */
             ReductionCandidate candidate{
                 i,
                 current_plan.size(),
@@ -389,29 +437,11 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
 
             reduction_candidates.push_back(candidate);
 
-            /*
-             * Static mode:
-             *
-             * Just record the reduction and continue looking for
-             * other AE reductions on the unchanged plan.
-             */
             if (!apply_reductions) {
                 ++i;
                 continue;
             }
 
-            /*
-             * Greedy AE mode:
-             *
-             * Construct:
-             *
-             * original prefix [0, i)
-             * +
-             * every applicable suffix action
-             *
-             * This is exactly equivalent to removing action i and all
-             * later actions that became inapplicable.
-             */
             Plan improved_plan;
 
             improved_plan.insert(
@@ -424,18 +454,8 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
 
             current_plan = std::move(improved_plan);
 
-            /*
-             * Retest the same position i on the newly shortened plan.
-             *
-             * This matches your modified AE implementation, where i
-             * is not incremented after a successful reduction.
-             */
             continue;
         }
-
-        /*
-         * No reduction at i.
-         */
         ++i;
     }
 
@@ -472,10 +492,6 @@ static void add_edge(
 
     node.outgoing_edges.push_back({end_state, action, cost});
 
-    /*
-     * Also create the target node so goal states or
-     * dead ends are represented in the graph.
-     */
     get_or_create_graph_node(graph, end_state);
 }
 
@@ -496,13 +512,8 @@ PlanGraph ActionEliminationPlanStates::build_graph(
 
     OperatorsProxy operators = task_proxy.get_operators();
 
-    // ---------------------------------------------------------
-    // Add the original plan to the graph.
-    // ---------------------------------------------------------
-
     State current_state = state_registry.get_initial_state();
 
-    // Also create the initial state as a node.
     get_or_create_graph_node(graph, current_state.get_id());
 
     for (OperatorID op_id : plan) {
@@ -517,10 +528,6 @@ PlanGraph ActionEliminationPlanStates::build_graph(
 
         current_state = next_state;
     }
-
-    // ---------------------------------------------------------
-    // Add all candidate paths to the graph.
-    // ---------------------------------------------------------
 
     for (const ReductionCandidate &candidate : candidates) {
         State candidate_state =
@@ -537,13 +544,6 @@ PlanGraph ActionEliminationPlanStates::build_graph(
                 static_cast<size_t>(op.get_cost()));
 
             candidate_state = next_state;
-        }
-
-        // Debugging check:
-        // replaying the candidate should end exactly
-        // at the state stored in the candidate.
-        if (candidate_state.get_id() != candidate.end_state) {
-            cerr << "ERROR: Candidate end state mismatch." << endl;
         }
     }
 

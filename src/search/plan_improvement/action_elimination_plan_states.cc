@@ -10,10 +10,12 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <limits>
 #include <queue>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 using namespace std;
@@ -210,6 +212,19 @@ static unordered_map<int, vector<size_t>> build_state_position_lookup(
     return state_positions;
 }
 
+struct CandidateTransition {
+    StateID start_state;
+    OperatorID action;
+};
+
+static uint64_t transition_key(StateID state_id, OperatorID operator_id) {
+    uint64_t state = static_cast<uint32_t>(state_id.get_value());
+
+    uint64_t op = static_cast<uint32_t>(operator_id.get_index());
+
+    return (state << 32) | op;
+}
+
 vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
     const Plan &plan, const shared_ptr<AbstractTask> &task,
     StateRegistry &state_registry, bool apply_reductions, size_t start_index) {
@@ -223,17 +238,34 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
     vector<StateInfo> plan_states =
         extract_state_info_from_plan(current_plan, task_proxy, state_registry);
 
-    /*
-     * Maps:
-     *
-     * StateID -> all positions in the current plan
-     *            where this state occurs.
-     *
-     * The vectors of positions are automatically sorted
-     * because we insert them in increasing order.
-     */
     unordered_map<int, vector<size_t>> state_positions =
         build_state_position_lookup(plan_states);
+
+    /*
+     * Used only for the static run.
+     *
+     * If a candidate contains no transition that is new to the graph,
+     * there is no reason to store the whole candidate.
+     */
+    unordered_set<uint64_t> seen_transitions;
+
+    /*
+     * The original plan will always be added to the graph anyway.
+     * Therefore all its transitions are already considered known.
+     */
+    if (!apply_reductions) {
+        State original_state = state_registry.get_initial_state();
+
+        for (OperatorID op_id : plan) {
+            OperatorProxy op = operators[op_id];
+
+            seen_transitions.insert(
+                transition_key(original_state.get_id(), op_id));
+
+            original_state =
+                state_registry.get_successor_state(original_state, op);
+        }
+    }
 
     size_t i = start_index;
 
@@ -241,41 +273,49 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
         State simulated_state = plan_states[i].state;
 
         Plan candidate_segment;
+
+        vector<CandidateTransition> candidate_transitions;
+
         size_t candidate_cost = 0;
 
         bool reduction_applied = false;
 
         for (size_t j = i + 1; j < current_plan.size(); ++j) {
-            OperatorProxy op = operators[current_plan[j]];
+            OperatorID op_id = current_plan[j];
+
+            OperatorProxy op = operators[op_id];
 
             if (!is_applicable(op, simulated_state)) {
                 continue;
             }
 
+            /*
+             * Remember the state BEFORE applying the action.
+             *
+             * A graph edge is uniquely identified by:
+             *
+             *     start state + action
+             */
+            StateID transition_start = simulated_state.get_id();
+
             simulated_state =
                 state_registry.get_successor_state(simulated_state, op);
 
-            candidate_segment.push_back(current_plan[j]);
+            candidate_segment.push_back(op_id);
+
+            candidate_transitions.push_back({transition_start, op_id});
 
             candidate_cost += static_cast<size_t>(op.get_cost());
 
             /*
-             * Instead of scanning:
-             *
-             *     k = j + 1 ... plan_states.size()
-             *
-             * look up only the positions that contain
-             * simulated_state.
+             * O(1)-average lookup for occurrences of the
+             * simulated state in the current plan.
              */
             int simulated_state_id = simulated_state.get_id().get_value();
 
             unordered_map<int, vector<size_t>>::const_iterator state_it =
                 state_positions.find(simulated_state_id);
 
-            /*
-             * This simulated state does not occur anywhere
-             * on the current plan.
-             */
             if (state_it == state_positions.end()) {
                 continue;
             }
@@ -283,11 +323,7 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
             const vector<size_t> &matching_positions = state_it->second;
 
             /*
-             * We only want reconnect positions k > j.
-             *
-             * Because matching_positions is sorted,
-             * upper_bound jumps directly to the first
-             * matching position greater than j.
+             * Only reconnect to positions k > j.
              */
             vector<size_t>::const_iterator k_it = upper_bound(
                 matching_positions.begin(), matching_positions.end(), j);
@@ -302,29 +338,73 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                     continue;
                 }
 
-                ReductionCandidate candidate{
-                    i,
-                    k,
-                    plan_states[i].state.get_id(),
-                    plan_states[k].state.get_id(),
-                    candidate_segment,
-                    candidate_cost};
+                /*
+                 * For the static run, first check whether
+                 * this candidate contributes at least one
+                 * graph transition we have never seen.
+                 */
+                bool adds_new_transition = apply_reductions;
 
-                reduction_candidates.push_back(candidate);
+                if (!apply_reductions) {
+                    for (const CandidateTransition &transition :
+                         candidate_transitions) {
+                        uint64_t key = transition_key(
+                            transition.start_state, transition.action);
+
+                        if (!seen_transitions.contains(key)) {
+                            adds_new_transition = true;
+                            break;
+                        }
+                    }
+                }
 
                 /*
-                 * Static pass:
+                 * Store the candidate only if:
                  *
-                 * Store all candidates and keep searching.
+                 * - this is the greedy run, or
+                 * - the static candidate actually adds
+                 *   something new to the graph.
+                 */
+                if (adds_new_transition) {
+                    ReductionCandidate candidate{
+                        i,
+                        k,
+                        plan_states[i].state.get_id(),
+                        plan_states[k].state.get_id(),
+                        candidate_segment,
+                        candidate_cost};
+
+                    reduction_candidates.push_back(candidate);
+
+                    /*
+                     * After storing a static candidate,
+                     * all transitions contained in it are
+                     * now known.
+                     */
+                    if (!apply_reductions) {
+                        for (const CandidateTransition &transition :
+                             candidate_transitions) {
+                            seen_transitions.insert(transition_key(
+                                transition.start_state, transition.action));
+                        }
+                    }
+                }
+
+                /*
+                 * Static run:
+                 *
+                 * Whether we stored this particular candidate
+                 * or skipped it as redundant, continue searching.
                  */
                 if (!apply_reductions) {
                     continue;
                 }
 
                 /*
-                 * Greedy pass:
+                 * Greedy run:
                  *
-                 * Apply the first reduction found.
+                 * A valid reduction was found, so apply it
+                 * regardless of graph deduplication.
                  */
                 Plan improved_plan;
 
@@ -343,9 +423,8 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                 current_plan = std::move(improved_plan);
 
                 /*
-                 * Since the plan changed, both the plan-state
-                 * information AND the lookup table are now
-                 * outdated.
+                 * Current plan changed, so rebuild its
+                 * states, prefix costs and position lookup.
                  */
                 plan_states = extract_state_info_from_plan(
                     current_plan, task_proxy, state_registry);
@@ -353,6 +432,7 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                 state_positions = build_state_position_lookup(plan_states);
 
                 reduction_applied = true;
+
                 break;
             }
 
@@ -362,8 +442,8 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
         }
 
         /*
-         * If we applied a reduction, retry the same i
-         * on the changed plan.
+         * Greedy reduction:
+         * retry the same i on the changed plan.
          */
         if (reduction_applied) {
             continue;

@@ -86,4 +86,14 @@ def get_parser():
         r"Number of operators in original task: (\d+)",
         type=int,
     )
+    parser.add_pattern(
+        "graph_states",
+        r"Graph states: (\d+)",
+        type=int,
+    )
+    parser.add_pattern(
+        "graph_edges",
+        r"Graph edges: (\d+)",
+        type=int,
+    )
     return parser

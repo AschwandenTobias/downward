@@ -148,6 +148,8 @@ ATTRIBUTES = [
     "number_of_operators",
     "number_of_reduced_operators",
     "allowed_operator_name_schemas",
+    "graph_states",
+    "graph_edges",
     "search_time",
     project.PLAN_IMPROVEMENT_TIME,
     "total_time",

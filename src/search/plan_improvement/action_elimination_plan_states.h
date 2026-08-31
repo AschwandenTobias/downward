@@ -40,9 +40,6 @@ private:
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
         StateRegistry &state_registry, bool apply_reductions);
 
-    static unordered_map<int, vector<size_t>> build_state_position_lookup(
-        const vector<StateInfo> &plan_states);
-
     std::vector<ReductionCandidate> ae_candidate_extractor(
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
         StateRegistry &state_registry, bool apply_reductions);

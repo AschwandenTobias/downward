@@ -113,6 +113,7 @@ create_fast_downward_library(
         plan_improvement/action_elimination_plan_states
         plan_improvement/operator_reduction
         plan_improvement/operator_pruner
+        plan_improvement/greedy_plan_states
         plan_improvement/minimal_reduction
         pruning_method
         search_algorithm

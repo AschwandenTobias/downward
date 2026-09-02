@@ -241,18 +241,8 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
     unordered_map<int, vector<size_t>> state_positions =
         build_state_position_lookup(plan_states);
 
-    /*
-     * Used only for the static run.
-     *
-     * If a candidate contains no transition that is new to the graph,
-     * there is no reason to store the whole candidate.
-     */
     unordered_set<uint64_t> seen_transitions;
 
-    /*
-     * The original plan will always be added to the graph anyway.
-     * Therefore all its transitions are already considered known.
-     */
     if (!apply_reductions) {
         State original_state = state_registry.get_initial_state();
 

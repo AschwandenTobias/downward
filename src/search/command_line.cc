@@ -9,6 +9,7 @@
 // AE: added
 #include "plan_improvement/action_elimination.h"
 #include "plan_improvement/action_elimination_plan_states.h"
+#include "plan_improvement/greedy_plan_states.h"
 #include "plan_improvement/minimal_reduction.h"
 #include "plan_improvement/operator_reduction.h"
 #include "plugins/any.h"
@@ -178,7 +179,7 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
             const string &improvement_arg = args[i];
             if (improvement_arg == "ae") {
                 parsed_options.plan_improver = make_shared<ActionElimination>();
-            } else if (improvement_arg == "ae_plan_states") {
+            } else if (improvement_arg == "combined_reductions") {
                 parsed_options.plan_improver =
                     make_shared<ActionEliminationPlanStates>();
             } else if (improvement_arg == "operator_reduction") {
@@ -190,9 +191,9 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
                     OperatorReductionType::NAMES);
             } else if (improvement_arg == "minimal_reduction") {
                 parsed_options.plan_improver = make_shared<MinimalReduction>();
-            }
-
-            else {
+            } else if (improvement_arg == "plan_states") {
+                parsed_options.plan_improver = make_shared<GreedyPlanStates>();
+            } else {
                 input_error(
                     "unknown plan improvement method: " + improvement_arg);
             }

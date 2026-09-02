@@ -46,30 +46,8 @@ SEARCH = "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))"
 
 
 CONFIGS = [
-    # Baseline: no plan improvement.
     (
-    "lama-first",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-    ],
-),
-    # Action elimination.
-    (
-    "lama-first-ae",
+    "lf-operator-reductionr",
     [
         "--search",
         (
@@ -87,13 +65,11 @@ CONFIGS = [
             ")))"
         ),
         "--plan-improvement",
-        "ae",
+        "operator_reduction",
     ],
 ),
-
-    # Action elimination using tracked plan states.
-    (
-    "lama-first-ae-plan-states",
+(
+    "lf-operator-name-reductionr",
     [
         "--search",
         (
@@ -111,7 +87,7 @@ CONFIGS = [
             ")))"
         ),
         "--plan-improvement",
-        "ae_plan_states",
+        "operator_name_reduction",
     ],
 ),
 ]

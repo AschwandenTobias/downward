@@ -84,33 +84,24 @@ Plan GreedyPlanStates::improve(
          << endl;
 
     TaskProxy task_proxy(*task);
-
     OperatorsProxy operators = task_proxy.get_operators();
 
     Plan current_plan = plan;
 
-    /*
-     * Compute all states of the current plan.
-     */
     vector<GreedyStateInfo> plan_states =
         extract_state_info_from_plan(current_plan, task_proxy, state_registry);
 
-    /*
-     * Fast lookup for exact state reconnections.
-     */
     unordered_map<int, vector<size_t>> state_positions =
         build_state_position_lookup(plan_states);
 
     size_t i = 0;
-
     size_t number_of_reductions = 0;
 
     while (i < current_plan.size()) {
         /*
-         * Try removing action i.
+         * Try removing current_plan[i].
          *
-         * Simulation starts in the state immediately
-         * before action i.
+         * Simulation starts immediately before action i.
          */
         State simulated_state = plan_states[i].state;
 
@@ -118,23 +109,29 @@ Plan GreedyPlanStates::improve(
 
         size_t candidate_cost = 0;
 
-        bool reduction_applied = false;
+        /*
+         * Best complete replacement found for position i.
+         */
+        bool best_reduction_found = false;
+
+        Plan best_plan;
 
         /*
-         * Skip action i and consider the remaining
-         * actions in their original order.
-         *
-         * Whenever an action is applicable in the
-         * simulated state, execute it.
+         * Cost of the current complete plan.
+         */
+        size_t current_plan_cost = plan_states.back().prefix_cost;
+
+        size_t best_plan_cost = current_plan_cost;
+
+        /*
+         * Skip action i and greedily simulate all later
+         * applicable actions.
          */
         for (size_t j = i + 1; j < current_plan.size(); ++j) {
             OperatorID op_id = current_plan[j];
 
             OperatorProxy op = operators[op_id];
 
-            /*
-             * Inapplicable actions are simply skipped.
-             */
             if (!is_applicable(op, simulated_state)) {
                 continue;
             }
@@ -147,116 +144,148 @@ Plan GreedyPlanStates::improve(
             candidate_cost += static_cast<size_t>(op.get_cost());
 
             /*
-             * Check whether this exact simulated state
-             * occurs later on the current plan.
+             * ------------------------------------------------
+             * Plan-state reconnections
+             * ------------------------------------------------
+             *
+             * Check whether the current simulated state is
+             * exactly one of the later states of the current
+             * plan.
              */
             int simulated_state_id = simulated_state.get_id().get_value();
 
             unordered_map<int, vector<size_t>>::const_iterator state_it =
                 state_positions.find(simulated_state_id);
 
-            if (state_it == state_positions.end()) {
-                continue;
-            }
-
-            const vector<size_t> &matching_positions = state_it->second;
-
-            /*
-             * We require k > j.
-             *
-             * This means we reconnect to a state that
-             * lies strictly after the position of the
-             * action we just considered.
-             */
-            vector<size_t>::const_iterator k_it = upper_bound(
-                matching_positions.begin(), matching_positions.end(), j);
-
-            for (; k_it != matching_positions.end(); ++k_it) {
-                size_t k = *k_it;
+            if (state_it != state_positions.end()) {
+                const vector<size_t> &matching_positions = state_it->second;
 
                 /*
-                 * Cost of the part of the current plan
-                 * that would be replaced:
-                 *
-                 *     [i, k)
+                 * Only reconnect to states occurring after
+                 * the action position j.
                  */
-                size_t old_segment_cost =
-                    plan_states[k].prefix_cost - plan_states[i].prefix_cost;
+                vector<size_t>::const_iterator k_it = upper_bound(
+                    matching_positions.begin(), matching_positions.end(), j);
 
-                /*
-                 * Only accept an actual improvement.
-                 */
-                if (candidate_cost >= old_segment_cost) {
-                    continue;
+                for (; k_it != matching_positions.end(); ++k_it) {
+                    size_t k = *k_it;
+
+                    /*
+                     * Complete cost of:
+                     *
+                     * prefix [0, i)
+                     * +
+                     * candidate_segment
+                     * +
+                     * suffix [k, end)
+                     */
+                    size_t prefix_cost = plan_states[i].prefix_cost;
+
+                    size_t suffix_cost =
+                        current_plan_cost - plan_states[k].prefix_cost;
+
+                    size_t complete_candidate_cost =
+                        prefix_cost + candidate_cost + suffix_cost;
+
+                    /*
+                     * Only remember an actual improvement,
+                     * and only if it is the best one found
+                     * so far for this i.
+                     */
+                    if (complete_candidate_cost >= best_plan_cost) {
+                        continue;
+                    }
+
+                    Plan improved_plan;
+
+                    improved_plan.insert(
+                        improved_plan.end(), current_plan.begin(),
+                        current_plan.begin() + i);
+
+                    improved_plan.insert(
+                        improved_plan.end(), candidate_segment.begin(),
+                        candidate_segment.end());
+
+                    improved_plan.insert(
+                        improved_plan.end(), current_plan.begin() + k,
+                        current_plan.end());
+
+                    best_plan = std::move(improved_plan);
+
+                    best_plan_cost = complete_candidate_cost;
+
+                    best_reduction_found = true;
                 }
-
-                /*
-                 * We found the FIRST improving
-                 * reconnection for position i.
-                 *
-                 * Construct:
-                 *
-                 * prefix [0, i)
-                 * +
-                 * candidate_segment
-                 * +
-                 * suffix [k, end)
-                 */
-                Plan improved_plan;
-
-                improved_plan.insert(
-                    improved_plan.end(), current_plan.begin(),
-                    current_plan.begin() + i);
-
-                improved_plan.insert(
-                    improved_plan.end(), candidate_segment.begin(),
-                    candidate_segment.end());
-
-                improved_plan.insert(
-                    improved_plan.end(), current_plan.begin() + k,
-                    current_plan.end());
-
-                current_plan = std::move(improved_plan);
-
-                ++number_of_reductions;
-
-                /*
-                 * The plan has changed.
-                 *
-                 * Therefore all states, prefix costs,
-                 * and state positions must be rebuilt.
-                 */
-                plan_states = extract_state_info_from_plan(
-                    current_plan, task_proxy, state_registry);
-
-                state_positions = build_state_position_lookup(plan_states);
-
-                reduction_applied = true;
-
-                break;
-            }
-
-            if (reduction_applied) {
-                break;
             }
         }
 
         /*
-         * Important:
+         * ----------------------------------------------------
+         * AE-style goal reduction
+         * ----------------------------------------------------
          *
-         * After a successful reduction, retry the SAME i.
+         * We deliberately continued the complete simulation
+         * even if an earlier plan-state reconnection existed.
          *
-         * The action that was previously later in the
-         * plan may now have shifted into position i and
-         * another reduction may be possible.
+         * If the resulting simulated state is already a goal,
+         * then:
+         *
+         * prefix [0, i)
+         * +
+         * candidate_segment
+         *
+         * is itself a complete valid plan.
          */
-        if (reduction_applied) {
+        if (is_goal_state(task_proxy, simulated_state)) {
+            size_t goal_candidate_cost =
+                plan_states[i].prefix_cost + candidate_cost;
+
+            if (goal_candidate_cost < best_plan_cost) {
+                Plan goal_plan;
+
+                goal_plan.insert(
+                    goal_plan.end(), current_plan.begin(),
+                    current_plan.begin() + i);
+
+                goal_plan.insert(
+                    goal_plan.end(), candidate_segment.begin(),
+                    candidate_segment.end());
+
+                best_plan = std::move(goal_plan);
+
+                best_plan_cost = goal_candidate_cost;
+
+                best_reduction_found = true;
+            }
+        }
+
+        /*
+         * ----------------------------------------------------
+         * Apply the best reduction found for this position.
+         * ----------------------------------------------------
+         */
+        if (best_reduction_found) {
+            current_plan = std::move(best_plan);
+
+            ++number_of_reductions;
+
+            /*
+             * The plan changed, so all plan-state information
+             * is outdated.
+             */
+            plan_states = extract_state_info_from_plan(
+                current_plan, task_proxy, state_registry);
+
+            state_positions = build_state_position_lookup(plan_states);
+
+            /*
+             * Retry the same position.
+             */
             continue;
         }
 
         /*
-         * Nothing could be improved at position i.
-         * Move to the next position.
+         * No useful reduction found for i.
          */
         ++i;
     }

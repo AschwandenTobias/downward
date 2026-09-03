@@ -185,7 +185,6 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
             } else if (improvement_arg == "operator_reduction") {
                 parsed_options.plan_improver =
                     make_shared<OperatorReduction>(OperatorReductionType::IDS);
-
             } else if (improvement_arg == "operator_name_reduction") {
                 parsed_options.plan_improver = make_shared<OperatorReduction>(
                     OperatorReductionType::NAMES);

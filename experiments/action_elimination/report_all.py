@@ -155,6 +155,28 @@ CONFIGS = [
     ],
 ),
 (
+    "4b_lf_combined_non_static",
+    [
+        "--search",
+        (
+            "let(hlm, eval_modify_costs("
+            "landmark_sum("
+            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+            "pref=false),"
+            "cost_type=one),"
+            "let(hff, eval_modify_costs(ff(),cost_type=one),"
+            "lazy_greedy("
+            "[hff,hlm],"
+            "preferred=[hff,hlm],"
+            "cost_type=one,"
+            "reopen_closed=false"
+            ")))"
+        ),
+        "--plan-improvement",
+        "combined_reductions_greedy",
+    ],
+),
+(
     "5_lf_operator_reduction",
     [
         "--search",

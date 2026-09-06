@@ -9,6 +9,7 @@
 // AE: added
 #include "plan_improvement/action_elimination.h"
 #include "plan_improvement/action_elimination_plan_states.h"
+#include "plan_improvement/combined_reductions_without_static.h"
 #include "plan_improvement/greedy_plan_states.h"
 #include "plan_improvement/minimal_reduction.h"
 #include "plan_improvement/operator_reduction.h"
@@ -182,6 +183,9 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
             } else if (improvement_arg == "combined_reductions") {
                 parsed_options.plan_improver =
                     make_shared<ActionEliminationPlanStates>();
+            } else if (improvement_arg == "combined_reductions_greedy") {
+                parsed_options.plan_improver =
+                    make_shared<CombinedReductionsWithoutStatic>();
             } else if (improvement_arg == "operator_reduction") {
                 parsed_options.plan_improver =
                     make_shared<OperatorReduction>(OperatorReductionType::IDS);

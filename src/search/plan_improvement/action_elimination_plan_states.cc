@@ -59,13 +59,6 @@ static Plan find_shortest_plan(
     State initial_state = state_registry.get_initial_state();
 
     size_t initial_index = find_graph_node_index(graph, initial_state.get_id());
-
-    if (initial_index == no_node) {
-        cerr << "ERROR: Initial state is not in graph." << endl;
-
-        return {};
-    }
-
     vector<size_t> distance(graph.size(), infinity);
 
     vector<size_t> predecessor(graph.size(), no_node);
@@ -134,40 +127,14 @@ static Plan find_shortest_plan(
             open.push({successor_index, new_cost});
         }
     }
-
-    if (goal_index == no_node) {
-        cerr << "ERROR: No goal state reachable "
-             << "in candidate graph." << endl;
-
-        return {};
-    }
-
     cout << "Shortest graph path cost: " << distance[goal_index] << endl;
-
     Plan reversed_plan;
-
     size_t current_index = goal_index;
 
     while (current_index != initial_index) {
         size_t action_index = predecessor_action_index[current_index];
-
-        if (action_index == infinity) {
-            cerr << "ERROR: Missing predecessor action "
-                 << "during graph path reconstruction." << endl;
-
-            return {};
-        }
-
         reversed_plan.push_back(predecessor_action[action_index]);
-
         current_index = predecessor[current_index];
-
-        if (current_index == no_node) {
-            cerr << "ERROR: Missing predecessor "
-                 << "during graph path reconstruction." << endl;
-
-            return {};
-        }
     }
 
     Plan result_plan;
@@ -278,14 +245,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
             if (!is_applicable(op, simulated_state)) {
                 continue;
             }
-
-            /*
-             * Remember the state BEFORE applying the action.
-             *
-             * A graph edge is uniquely identified by:
-             *
-             *     start state + action
-             */
             StateID transition_start = simulated_state.get_id();
 
             simulated_state =
@@ -297,10 +256,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
 
             candidate_cost += static_cast<size_t>(op.get_cost());
 
-            /*
-             * O(1)-average lookup for occurrences of the
-             * simulated state in the current plan.
-             */
             int simulated_state_id = simulated_state.get_id().get_value();
 
             unordered_map<int, vector<size_t>>::const_iterator state_it =
@@ -312,9 +267,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
 
             const vector<size_t> &matching_positions = state_it->second;
 
-            /*
-             * Only reconnect to positions k > j.
-             */
             vector<size_t>::const_iterator k_it = upper_bound(
                 matching_positions.begin(), matching_positions.end(), j);
 
@@ -327,12 +279,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                 if (candidate_cost >= old_segment_cost) {
                     continue;
                 }
-
-                /*
-                 * For the static run, first check whether
-                 * this candidate contributes at least one
-                 * graph transition we have never seen.
-                 */
                 bool adds_new_transition = apply_reductions;
 
                 if (!apply_reductions) {
@@ -347,14 +293,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                         }
                     }
                 }
-
-                /*
-                 * Store the candidate only if:
-                 *
-                 * - this is the greedy run, or
-                 * - the static candidate actually adds
-                 *   something new to the graph.
-                 */
                 if (adds_new_transition) {
                     ReductionCandidate candidate{
                         i,
@@ -365,12 +303,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                         candidate_cost};
 
                     reduction_candidates.push_back(candidate);
-
-                    /*
-                     * After storing a static candidate,
-                     * all transitions contained in it are
-                     * now known.
-                     */
                     if (!apply_reductions) {
                         for (const CandidateTransition &transition :
                              candidate_transitions) {
@@ -380,22 +312,9 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                     }
                 }
 
-                /*
-                 * Static run:
-                 *
-                 * Whether we stored this particular candidate
-                 * or skipped it as redundant, continue searching.
-                 */
                 if (!apply_reductions) {
                     continue;
                 }
-
-                /*
-                 * Greedy run:
-                 *
-                 * A valid reduction was found, so apply it
-                 * regardless of graph deduplication.
-                 */
                 Plan improved_plan;
 
                 improved_plan.insert(
@@ -411,11 +330,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                     current_plan.end());
 
                 current_plan = std::move(improved_plan);
-
-                /*
-                 * Current plan changed, so rebuild its
-                 * states, prefix costs and position lookup.
-                 */
                 plan_states = extract_state_info_from_plan(
                     current_plan, task_proxy, state_registry);
 
@@ -430,11 +344,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::candidate_extractor(
                 break;
             }
         }
-
-        /*
-         * Greedy reduction:
-         * retry the same i on the changed plan.
-         */
         if (reduction_applied) {
             continue;
         }
@@ -465,11 +374,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
     Plan current_plan = plan;
 
     State prefix_state = state_registry.get_initial_state();
-
-    /*
-     * We only have to compute the prefix once in order to
-     * reach start_index.
-     */
     for (size_t prefix_index = 0; prefix_index < start_index; ++prefix_index) {
         OperatorProxy prefix_operator = operators[current_plan[prefix_index]];
 
@@ -480,11 +384,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
     size_t i = start_index;
 
     while (i < current_plan.size()) {
-        /*
-         * Try deleting current_plan[i].
-         *
-         * prefix_state is already exactly the state before i.
-         */
         State current_state = prefix_state;
 
         Plan candidate_segment;
@@ -515,15 +414,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
                 candidate_cost};
 
             reduction_candidates.push_back(candidate);
-
-            /*
-             * Static mode:
-             *
-             * We do NOT change current_plan.
-             *
-             * Therefore action i still belongs to the prefix
-             * when we move on to i + 1.
-             */
             if (!apply_reductions) {
                 OperatorProxy prefix_operator = operators[current_plan[i]];
 
@@ -535,15 +425,6 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
                 continue;
             }
 
-            /*
-             * Greedy mode:
-             *
-             * Replace the current plan by:
-             *
-             * prefix [0, i)
-             * +
-             * applicable suffix actions.
-             */
             Plan improved_plan;
 
             improved_plan.insert(
@@ -555,24 +436,8 @@ vector<ReductionCandidate> ActionEliminationPlanStates::ae_candidate_extractor(
                 candidate_segment.end());
 
             current_plan = std::move(improved_plan);
-
-            /*
-             * Important:
-             *
-             * We retry the SAME i.
-             *
-             * The prefix [0, i) did not change, so prefix_state
-             * is still exactly correct. No recomputation needed.
-             */
             continue;
         }
-
-        /*
-         * No reduction was possible at i.
-         *
-         * Therefore action i remains part of the plan.
-         * Advance prefix_state by applying it once.
-         */
         OperatorProxy prefix_operator = operators[current_plan[i]];
 
         prefix_state =
@@ -686,14 +551,9 @@ Plan ActionEliminationPlanStates::improve(
     StateRegistry &state_registry) {
     TaskProxy task_proxy(*task);
 
-    cout << "\n\n!!!!! I am at the start of ae_plan_states !!!!!\n" << endl;
+    // cout << "\n\n!!!!! I am at the start of ae_plan_states !!!!!\n" << endl;
 
     vector<ReductionCandidate> reduction_candidates;
-
-    // ============================================================
-    // 1. Greedy plan-state extraction
-    // ============================================================
-
     chrono::steady_clock::time_point greedy_plan_states_start =
         chrono::steady_clock::now();
 
@@ -711,15 +571,6 @@ Plan ActionEliminationPlanStates::improve(
 
     cout << "Greedy plan-state candidates: "
          << greedy_plan_state_candidates.size() << endl;
-
-    // ============================================================
-    // 2. Static plan-state extraction
-    //
-    // Only necessary if greedy found something.
-    // Start where greedy found its first reduction because all
-    // earlier positions were already checked on the original plan.
-    // ============================================================
-
     if (!greedy_plan_state_candidates.empty()) {
         size_t first_reduction_index =
             greedy_plan_state_candidates.front().start_index;
@@ -751,14 +602,9 @@ Plan ActionEliminationPlanStates::improve(
         cout << "Static plan-state extraction skipped." << endl;
     }
 
-    // The greedy candidates are useful as well.
     reduction_candidates.insert(
         reduction_candidates.end(), greedy_plan_state_candidates.begin(),
         greedy_plan_state_candidates.end());
-
-    // ============================================================
-    // 3. Greedy AE extraction
-    // ============================================================
 
     chrono::steady_clock::time_point greedy_ae_start =
         chrono::steady_clock::now();
@@ -774,10 +620,6 @@ Plan ActionEliminationPlanStates::improve(
          << "s" << endl;
 
     cout << "Greedy AE candidates: " << greedy_ae_candidates.size() << endl;
-
-    // ============================================================
-    // 4. Static AE extraction
-    // ============================================================
 
     if (!greedy_ae_candidates.empty()) {
         size_t first_reduction_index = greedy_ae_candidates.front().start_index;
@@ -813,10 +655,6 @@ Plan ActionEliminationPlanStates::improve(
 
     cout << "Total candidates: " << reduction_candidates.size() << endl;
 
-    // ============================================================
-    // 5. Graph construction
-    // ============================================================
-
     chrono::steady_clock::time_point graph_start = chrono::steady_clock::now();
 
     PlanGraph graph =
@@ -831,10 +669,6 @@ Plan ActionEliminationPlanStates::improve(
     cout << "Graph states: " << graph.size() << endl;
 
     cout << "Graph edges: " << count_graph_edges(graph) << endl;
-
-    // ============================================================
-    // 6. Dijkstra
-    // ============================================================
 
     chrono::steady_clock::time_point dijkstra_start =
         chrono::steady_clock::now();

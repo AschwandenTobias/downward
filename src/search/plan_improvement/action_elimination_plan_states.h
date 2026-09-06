@@ -35,7 +35,7 @@ struct PlanGraphNode {
 using PlanGraph = std::vector<PlanGraphNode>;
 
 class ActionEliminationPlanStates : public PlanImprover {
-private:
+public:
     std::vector<ReductionCandidate> candidate_extractor(
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
         StateRegistry &state_registry, bool apply_reductions,
@@ -50,7 +50,6 @@ private:
         const Plan &plan, const std::vector<ReductionCandidate> &candidates,
         const TaskProxy &task_proxy, StateRegistry &state_registry);
 
-public:
     Plan improve(
         const Plan &plan, const std::shared_ptr<AbstractTask> &task,
         StateRegistry &state_registry) override;

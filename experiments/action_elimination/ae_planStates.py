@@ -28,13 +28,13 @@ else:
     # Local testing:
     # Only run a small subset to quickly test the experiment setup.
     # Quickly here still means at least 5 minutes since some of those are not solvable in that time.
-    SUITE = [
-        "blocks:probBLOCKS-4-0.pddl",
-        "blocks:probBLOCKS-5-0.pddl",
-        "elevators-sat08-strips:p01.pddl",
-        "elevators-sat08-strips:p02.pddl",
-    ]
-
+    #SUITE = [
+    #    "blocks:probBLOCKS-4-0.pddl",
+    #    "blocks:probBLOCKS-5-0.pddl",
+    #    "elevators-sat08-strips:p01.pddl",
+    #    "elevators-sat08-strips:p02.pddl",
+    #]
+    SUITE = project.SUITE_SATISFICING
     ENV = project.LocalEnvironment(processes=12)
 
 
@@ -90,36 +90,13 @@ CONFIGS = [
         "plan_states",
     ],
 ),
-(
-    "5_lf_operator_reduction",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "operator_reduction",
-    ],
-),
-
 ]
 
 BUILD_OPTIONS = []
 
 DRIVER_OPTIONS = [
     "--overall-time-limit",
-    "30m",
+    "1m",
     "--overall-memory-limit",
     "3500M",
 ]

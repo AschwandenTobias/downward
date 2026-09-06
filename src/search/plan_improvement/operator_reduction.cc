@@ -9,11 +9,11 @@
 #include "../search_algorithm.h"
 #include "../state_registry.h"
 
-#include "../heuristics/blind_search_heuristic.h"
 #include "../heuristics/lm_cut_heuristic.h"
-#include "../heuristics/lm_cut_landmarks.h"
+#include "../heuristics/max_heuristic.h"
 #include "../search_algorithms/eager_search.h"
 #include "../search_algorithms/search_common.h"
+#include "../tasks/default_value_axioms_task.h"
 #include "../utils/logging.h"
 
 #include <iostream>
@@ -55,17 +55,18 @@ Plan OperatorReduction::improve(
             lm_cut_heuristic::LandmarkCutHeuristic, Evaluator>(
             true, true, true, "lmcut", utils::Verbosity::NORMAL);
     */
-    shared_ptr<TaskIndependentEvaluator> blind =
+    shared_ptr<TaskIndependentEvaluator> hmax =
         components::make_auto_task_independent_component<
-            blind_search_heuristic::BlindSearchHeuristic, Evaluator>(
-            true, "blind", utils::Verbosity::NORMAL);
+            max_heuristic::HSPMaxHeuristic, Evaluator>(
+            tasks::AxiomHandlingType::APPROXIMATE_NEGATIVE, true, "hmax",
+            utils::Verbosity::NORMAL);
     // Had to change this to blind aswell
     pair<
         shared_ptr<TaskIndependentOpenListFactory>,
         shared_ptr<TaskIndependentEvaluator>>
         astar_components =
             search_common::create_astar_open_list_factory_and_f_eval(
-                blind, utils::Verbosity::NORMAL);
+                hmax, utils::Verbosity::NORMAL);
 
     vector<shared_ptr<components::TaskIndependentComponent<Evaluator>>>
         preferred;

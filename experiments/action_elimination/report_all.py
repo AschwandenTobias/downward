@@ -19,15 +19,16 @@ REVISION_CACHE = (
 # ---------------------------------------------------------------------------
 
 if project.REMOTE:
-    # On sciCORE:
-    # Run all satisficing benchmark domains through SLURM.
     SUITE = project.SUITE_SATISFICING
-    ENV = project.BaselSlurmEnvironment()
+
+    ENV = project.BaselSlurmEnvironment(
+        partition="infai_2",
+        memory_per_cpu="6300M",
+        cpus_per_task=2,
+        time_limit_per_task="01:10:00",
+    )
 
 else:
-    # Local testing:
-    # Only run a small subset to quickly test the experiment setup.
-    # Quickly here still means at least 5 minutes since some of those are not solvable in that time.
     SUITE = [
         "blocks:probBLOCKS-4-0.pddl",
         "blocks:probBLOCKS-5-0.pddl",
@@ -42,201 +43,121 @@ else:
 # Planner configurations
 # ---------------------------------------------------------------------------
 
-SEARCH = "let(hff, ff(), lazy_greedy([hff], preferred=[hff]))"
+LAMA_FIRST = (
+    "let(hlm, eval_modify_costs("
+    "landmark_sum("
+    "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
+    "pref=false),"
+    "cost_type=one),"
+    "let(hff, eval_modify_costs(ff(),cost_type=one),"
+    "lazy_greedy("
+    "[hff,hlm],"
+    "preferred=[hff,hlm],"
+    "cost_type=one,"
+    "reopen_closed=false"
+    ")))"
+)
 
 
 CONFIGS = [
     (
-    "0_lf",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-    ],
-),
-(
-    "1_lf_ae",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "ae",
-    ],
-),
-(
-    "2_lf_mr",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "minimal_reduction",
-    ],
-),
-(
-    "3_lf_planStates",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "plan_states",
-    ],
-),
-(
-    "4_lf_combined_reductions",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "combined_reductions",
-    ],
-),
-(
-    "4b_lf_combined_non_static",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "combined_reductions_greedy",
-    ],
-),
-(
-    "5_lf_operator_reduction",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "operator_reduction",
-    ],
-),
-(
-    "6_lf_operator_name_reduction",
-    [
-        "--search",
-        (
-            "let(hlm, eval_modify_costs("
-            "landmark_sum("
-            "lm_factory=lm_reasonable_orders_hps(lm_rhw()),"
-            "pref=false),"
-            "cost_type=one),"
-            "let(hff, eval_modify_costs(ff(),cost_type=one),"
-            "lazy_greedy("
-            "[hff,hlm],"
-            "preferred=[hff,hlm],"
-            "cost_type=one,"
-            "reopen_closed=false"
-            ")))"
-        ),
-        "--plan-improvement",
-        "operator_name_reduction",
-    ],
-),
-(
-    "7_optimal_blind",
-    [
-        "--search",
-        "astar(blind())",
-    ],
-),
+        "0_lf",
+        [
+            "--search",
+            LAMA_FIRST,
+        ],
+    ),
+
+    (
+        "1_lf_ae",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "ae",
+        ],
+    ),
+
+    (
+        "2_lf_mr",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "minimal_reduction",
+        ],
+    ),
+
+    (
+        "3_lf_planStates",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "plan_states",
+        ],
+    ),
+
+    (
+        "4_lf_combined_reductions",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "combined_reductions",
+        ],
+    ),
+
+    (
+        "4b_lf_combined_non_static",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "combined_reductions_greedy",
+        ],
+    ),
+
+    (
+        "5_lf_operator_reduction",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "operator_reduction",
+        ],
+    ),
+
+    (
+        "6_lf_operator_name_reduction",
+        [
+            "--search",
+            LAMA_FIRST,
+            "--plan-improvement",
+            "operator_name_reduction",
+        ],
+    ),
+
+    (
+        "7_optimal_hmax",
+        [
+            "--search",
+            "astar(hmax())",
+        ],
+    ),
 ]
+
 
 BUILD_OPTIONS = []
 
+
 DRIVER_OPTIONS = [
     "--overall-time-limit",
-    "30m",
+    "1h",
     "--overall-memory-limit",
-    "3500M",
+    "12G",
 ]
+
 
 # ---------------------------------------------------------------------------
 # Fast Downward revision
@@ -245,6 +166,7 @@ DRIVER_OPTIONS = [
 REV_NICKS = [
     ("operator_reduction", ""),
 ]
+
 
 # ---------------------------------------------------------------------------
 # Report attributes
@@ -279,6 +201,7 @@ exp = project.FastDownwardExperiment(
     revision_cache=REVISION_CACHE,
 )
 
+
 for config_nick, config in CONFIGS:
     for revision, revision_nick in REV_NICKS:
 
@@ -296,10 +219,12 @@ for config_nick, config in CONFIGS:
             driver_options=DRIVER_OPTIONS,
         )
 
+
 exp.add_suite(
     BENCHMARKS_DIR,
     SUITE,
 )
+
 
 # ---------------------------------------------------------------------------
 # Parsers
@@ -309,7 +234,6 @@ exp.add_parser(exp.EXITCODE_PARSER)
 exp.add_parser(exp.TRANSLATOR_PARSER)
 exp.add_parser(exp.SINGLE_SEARCH_PARSER)
 
-# Parse our custom "Plan improvement time" output.
 exp.add_parser(custom_parser.get_parser())
 
 exp.add_parser(exp.PLANNER_PARSER)

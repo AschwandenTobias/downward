@@ -89,9 +89,9 @@ BUILD_OPTIONS = []
 
 DRIVER_OPTIONS = [
     "--overall-time-limit",
-    "1m",
+    "30m",
     "--overall-memory-limit",
-    "1G",
+    "8G",
 ]
 
 

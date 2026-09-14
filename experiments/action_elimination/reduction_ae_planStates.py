@@ -29,12 +29,13 @@ if project.REMOTE:
     )
 
 else:
-    SUITE = [
-        "blocks:probBLOCKS-4-0.pddl",
-        "blocks:probBLOCKS-5-0.pddl",
-        "elevators-sat08-strips:p01.pddl",
-        "elevators-sat08-strips:p02.pddl",
-    ]
+    #SUITE = [
+    #    "blocks:probBLOCKS-4-0.pddl",
+    #    "blocks:probBLOCKS-5-0.pddl",
+    #    "elevators-sat08-strips:p01.pddl",
+    #    "elevators-sat08-strips:p02.pddl",
+    #]
+    SUITE = project.SUITE_SATISFICING
 
     ENV = project.LocalEnvironment(processes=12)
 

@@ -35,7 +35,9 @@ else:
     #    "elevators-sat08-strips:p01.pddl",
     #    "elevators-sat08-strips:p02.pddl",
     #]
-    SUITE = project.SUITE_SATISFICING
+    SUITE = [
+            "sokoban-sat08-strips", "sokoban-sat11-strips",
+    ]
 
     ENV = project.LocalEnvironment(processes=12)
 

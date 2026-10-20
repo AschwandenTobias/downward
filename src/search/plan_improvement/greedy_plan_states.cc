@@ -83,6 +83,7 @@ static vector<GreedyStateInfo> extract_state_info_from_plan(
 
     return plan_states;
 }
+
 static unordered_map<int, vector<size_t>> build_state_position_lookup(
     const vector<GreedyStateInfo> &plan_states) {
     unordered_map<int, vector<size_t>> state_positions;

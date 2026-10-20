@@ -180,21 +180,21 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
             const string &improvement_arg = args[i];
             if (improvement_arg == "ae") {
                 parsed_options.plan_improver = make_shared<ActionElimination>();
-            } else if (improvement_arg == "combined_reductions") {
+            } else if (improvement_arg == "combined") {
                 parsed_options.plan_improver =
                     make_shared<ActionEliminationPlanStates>();
-            } else if (improvement_arg == "combined_reductions_greedy") {
+            } else if (improvement_arg == "combined_greedy") {
                 parsed_options.plan_improver =
                     make_shared<CombinedReductionsWithoutStatic>();
-            } else if (improvement_arg == "operator_reduction") {
+            } else if (improvement_arg == "or_id") {
                 parsed_options.plan_improver =
                     make_shared<OperatorReduction>(OperatorReductionType::IDS);
-            } else if (improvement_arg == "operator_name_reduction") {
+            } else if (improvement_arg == "or_name") {
                 parsed_options.plan_improver = make_shared<OperatorReduction>(
                     OperatorReductionType::NAMES);
-            } else if (improvement_arg == "minimal_reduction") {
+            } else if (improvement_arg == "mr") {
                 parsed_options.plan_improver = make_shared<MinimalReduction>();
-            } else if (improvement_arg == "plan_states") {
+            } else if (improvement_arg == "rr") {
                 parsed_options.plan_improver = make_shared<GreedyPlanStates>();
             } else {
                 input_error(

@@ -40,7 +40,7 @@ else:
 
 
 # ---------------------------------------------------------------------------
-# Planner configurations
+# Planner configuration
 # ---------------------------------------------------------------------------
 
 LAMA_FIRST = (
@@ -59,6 +59,19 @@ LAMA_FIRST = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Configurations
+#
+# Compare:
+#
+#   LAMA-first
+#   Reconnection Reduction
+#   PNGS(1)
+#   PNGS(2)
+#   PNGS(5)
+#   PNGS(10)
+# ---------------------------------------------------------------------------
+
 CONFIGS = [
     (
         "0_lf",
@@ -69,98 +82,78 @@ CONFIGS = [
     ),
 
     (
-        "1_lf_ae",
+        "1_lf_rr",
         [
             "--search",
             LAMA_FIRST,
             "--plan-improvement",
-            "ae",
+            "rr",
         ],
     ),
 
     (
-        "2_lf_mr",
+        "2_lf_pngs_1",
         [
             "--search",
             LAMA_FIRST,
             "--plan-improvement",
-            "minimal_reduction",
+            "pngs(1)",
         ],
     ),
 
     (
-        "3_lf_planStates",
+        "3_lf_pngs_2",
         [
             "--search",
             LAMA_FIRST,
             "--plan-improvement",
-            "plan_states",
+            "pngs(2)",
         ],
     ),
 
     (
-        "4_lf_combined_reductions",
+        "4_lf_pngs_5",
         [
             "--search",
             LAMA_FIRST,
             "--plan-improvement",
-            "combined_reductions",
+            "pngs(5)",
         ],
     ),
 
     (
-        "4b_lf_combined_non_static",
+        "5_lf_pngs_10",
         [
             "--search",
             LAMA_FIRST,
             "--plan-improvement",
-            "combined_reductions_greedy",
-        ],
-    ),
-
-    (
-        "5_lf_operator_reduction",
-        [
-            "--search",
-            LAMA_FIRST,
-            "--plan-improvement",
-            "operator_reduction",
-        ],
-    ),
-
-    (
-        "6_lf_operator_name_reduction",
-        [
-            "--search",
-            LAMA_FIRST,
-            "--plan-improvement",
-            "operator_name_reduction",
-        ],
-    ),
-
-    (
-        "7_optimal_hmax",
-        [
-            "--search",
-            "astar(hmax())",
+            "pngs(10)",
         ],
     ),
 ]
 
+
+# ---------------------------------------------------------------------------
+# Build / resource limits
+# ---------------------------------------------------------------------------
 
 BUILD_OPTIONS = []
 
 
 DRIVER_OPTIONS = [
     "--overall-time-limit",
-    "30m",
+    "5m",
     "--overall-memory-limit",
-    "6G",
+    "1G",
 ]
 
 
 # ---------------------------------------------------------------------------
 # Fast Downward revision
+#
+# IMPORTANT:
+# Make sure this points to a committed revision containing PNGS.
+# Downward Lab experiments use the committed Git revision.
 # ---------------------------------------------------------------------------
 
 REV_NICKS = [
@@ -180,9 +173,6 @@ ATTRIBUTES = [
     "error",
     "cost",
     "plan_length",
-    "number_of_operators",
-    "number_of_reduced_operators",
-    "allowed_operator_name_schemas",
     "graph_states",
     "graph_edges",
     "search_time",

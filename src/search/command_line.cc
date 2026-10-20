@@ -13,6 +13,7 @@
 #include "plan_improvement/greedy_plan_states.h"
 #include "plan_improvement/minimal_reduction.h"
 #include "plan_improvement/operator_reduction.h"
+#include "plan_improvement/plan_neighborhood_graph_search.h"
 #include "plugins/any.h"
 #include "plugins/doc_printer.h"
 #include "plugins/plugin.h"
@@ -21,6 +22,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -196,6 +198,19 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
                 parsed_options.plan_improver = make_shared<MinimalReduction>();
             } else if (improvement_arg == "rr") {
                 parsed_options.plan_improver = make_shared<GreedyPlanStates>();
+            } else if (improvement_arg == "pngs") {
+                parsed_options.plan_improver =
+                    make_shared<PlanNeighborhoodGraphSearch>();
+            } else if (
+                improvement_arg.rfind("pngs(", 0) == 0 &&
+                improvement_arg.back() == ')') {
+                string value =
+                    improvement_arg.substr(5, improvement_arg.size() - 6);
+
+                int neighborhood_size = stoi(value);
+
+                parsed_options.plan_improver =
+                    make_shared<PlanNeighborhoodGraphSearch>(neighborhood_size);
             } else {
                 input_error(
                     "unknown plan improvement method: " + improvement_arg);

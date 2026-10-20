@@ -6,6 +6,7 @@
 #include "../plugins/plugin.h"
 #include "../utils/component_errors.h"
 #include "../utils/logging.h"
+#include "../utils/markup.h"
 
 #include <iostream>
 
@@ -15,14 +16,13 @@ namespace iterated_search {
 IteratedSearch::IteratedSearch(
     const shared_ptr<AbstractTask> &task,
     const vector<shared_ptr<TaskIndependentSearchAlgorithm>> &algorithm_configs,
-    bool pass_bound, bool repeat_last, bool continue_on_fail,
-    bool continue_on_solve, OperatorCost cost_type, int bound, double max_time,
+    bool pass_bound, bool repeat_last, bool continue_on_solve,
+    OperatorCost cost_type, int bound, double max_time,
     const string &description, utils::Verbosity verbosity)
     : SearchAlgorithm(task, cost_type, bound, max_time, description, verbosity),
       task_independent_searches(algorithm_configs),
       pass_bound(pass_bound),
       repeat_last_phase(repeat_last),
-      continue_on_fail(continue_on_fail),
       continue_on_solve(continue_on_solve),
       phase(0),
       last_phase_found_solution(false),
@@ -100,8 +100,7 @@ shared_ptr<SearchAlgorithm> IteratedSearch::bind_current_search() {
            repeat_last_phase is true, but *not* if we didn't find a
            solution the last time around, since then this search would
            just behave the same way again (assuming determinism, which
-           we might not actually have right now, but strive for). So
-           this overrides continue_on_fail.
+           we might not actually have right now, but strive for).
         */
         if (repeat_last_phase && last_phase_found_solution) {
             return bind_search(num_phases - 1);
@@ -121,7 +120,6 @@ void IteratedSearch::update_best_status(
     }
     SearchStatus current_search_status =
         task_specific_search->get_finished_search_status();
-    assert(current_search_status != SearchStatus::IN_PROGRESS);
 
     switch (current_search_status) {
     case SearchStatus::SOLVED:
@@ -129,8 +127,10 @@ void IteratedSearch::update_best_status(
         best_status = current_search_status;
         break;
     case SearchStatus::UNSOLVABLE_WITHIN_BOUND:
-        /* We ignore inner bounds if the search did not check up to the outer
-           bound. */
+        /*
+           We ignore inner bounds if the inner search did not check up to the
+           outer bound.
+        */
         if (task_specific_search->get_bound() >= bound) {
             best_status = current_search_status;
         }
@@ -153,9 +153,7 @@ SearchStatus IteratedSearch::step() {
     ++phase;
 
     task_specific_search->search();
-
     update_best_status(task_specific_search);
-
     Plan found_plan;
     int plan_cost = 0;
     last_phase_found_solution = task_specific_search->found_solution();
@@ -210,15 +208,18 @@ SearchStatus IteratedSearch::step_return_value() {
             log << "Solution found - stop searching" << endl;
             return SOLVED;
         }
-    } else {
-        if (continue_on_fail) {
-            log << "No solution found - keep searching" << endl;
-            return IN_PROGRESS;
-        } else {
-            log << "No solution found - stop searching" << endl;
-            return get_finished_search_status();
-        }
     }
+    if (best_status == SearchStatus::UNSOLVABLE) {
+        log << "No plan exists - stop searching" << endl;
+        return SearchStatus::UNSOLVABLE;
+    }
+    if (best_status == SearchStatus::UNSOLVABLE_WITHIN_BOUND) {
+        log << "No plan with cost " << bound - 1
+            << " or less exists - stop searching" << endl;
+        return SearchStatus::UNSOLVABLE_WITHIN_BOUND;
+    }
+    log << "No solution found - keep searching" << endl;
+    return IN_PROGRESS;
 }
 
 void IteratedSearch::print_statistics() const {
@@ -242,7 +243,6 @@ class TaskIndependentIteratedSearch
     vector<shared_ptr<TaskIndependentSearchAlgorithm>> algorithm_configs;
     bool pass_bound;
     bool repeat_last_phase;
-    bool continue_on_fail;
     bool continue_on_solve;
     OperatorCost cost_type;
     int bound;
@@ -254,21 +254,20 @@ protected:
         const shared_ptr<AbstractTask> &task) const {
         return make_shared<IteratedSearch>(
             task, algorithm_configs, pass_bound, repeat_last_phase,
-            continue_on_fail, continue_on_solve, cost_type, bound, max_time,
-            description, verbosity);
+            continue_on_solve, cost_type, bound, max_time, description,
+            verbosity);
     }
 
 public:
     TaskIndependentIteratedSearch(
         const vector<shared_ptr<TaskIndependentSearchAlgorithm>>
             &algorithm_configs,
-        bool pass_bound, bool repeat_last, bool continue_on_fail,
-        bool continue_on_solve, OperatorCost cost_type, int bound,
-        double max_time, const string &description, utils::Verbosity verbosity)
+        bool pass_bound, bool repeat_last, bool continue_on_solve,
+        OperatorCost cost_type, int bound, double max_time,
+        const string &description, utils::Verbosity verbosity)
         : algorithm_configs(algorithm_configs),
           pass_bound(pass_bound),
           repeat_last_phase(repeat_last),
-          continue_on_fail(continue_on_fail),
           continue_on_solve(continue_on_solve),
           cost_type(cost_type),
           bound(bound),
@@ -283,7 +282,16 @@ class IteratedSearchFeature
 public:
     IteratedSearchFeature() : TypedFeature("iterated") {
         document_title("Iterated search");
-        document_synopsis("");
+        document_synopsis(
+            "An application of iterated search with decreasing weighted A* "
+            "weights is described in the following article:" +
+            utils::format_journal_reference(
+                {"Silvia Richter", "Matthias Westphal"},
+                "The LAMA Planner: Guiding Cost-Based Anytime Planning "
+                "with Landmarks",
+                "https://doi.org/10.1613/jair.2972",
+                "Journal of Artificial Intelligence Research", "39", "127-177",
+                "2010"));
 
         add_list_option<shared_ptr<TaskIndependentSearchAlgorithm>>(
             "algorithm_configs", "list of search algorithms for each phase",
@@ -295,9 +303,9 @@ public:
             "The iterated search bound is tightened whenever a component finds "
             "a cheaper plan.",
             "true");
-        add_option<bool>("repeat_last", "repeat last phase of search", "false");
         add_option<bool>(
-            "continue_on_fail", "continue search after no solution found",
+            "repeat_last",
+            "repeat the last search phase while it continues finding solutions",
             "false");
         add_option<bool>(
             "continue_on_solve", "continue search after solution found",
@@ -333,7 +341,6 @@ public:
             opts.get_list<shared_ptr<TaskIndependentSearchAlgorithm>>(
                 "algorithm_configs"),
             opts.get<bool>("pass_bound"), opts.get<bool>("repeat_last"),
-            opts.get<bool>("continue_on_fail"),
             opts.get<bool>("continue_on_solve"),
             get_search_algorithm_arguments_from_options(opts));
     }

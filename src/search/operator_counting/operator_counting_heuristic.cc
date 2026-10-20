@@ -73,16 +73,16 @@ public:
             "An operator-counting heuristic computes a linear program (LP) in each "
             "state. The LP has one variable Count_o for each operator o that "
             "represents how often the operator is used in a plan. Operator-"
-            "counting constraints are linear constraints over these varaibles that "
+            "counting constraints are linear constraints over these variables that "
             "are guaranteed to have a solution with Count_o = occurrences(o, pi) "
             "for every plan pi. Minimizing the total cost of operators subject to "
             "some operator-counting constraints is an admissible heuristic. "
             "For details, see" +
             utils::format_conference_reference(
-                {"Florian Pommerening", "Gabriele Roeger", "Malte Helmert",
+                {"Florian Pommerening", "Gabriele Röger", "Malte Helmert",
                  "Blai Bonet"},
-                "LP-based Heuristics for Cost-optimal Planning",
-                "http://www.aaai.org/ocs/index.php/ICAPS/ICAPS14/paper/view/7892/8031",
+                "LP-Based Heuristics for Cost-Optimal Planning",
+                "https://doi.org/10.1609/icaps.v24i1.13621",
                 "Proceedings of the Twenty-Fourth International Conference"
                 " on Automated Planning and Scheduling (ICAPS 2014)",
                 "226-234", "AAAI Press", "2014"));

@@ -499,7 +499,7 @@ void add_hillclimbing_options_to_feature(plugins::Feature &feature) {
         "heuristic estimate for the initial state by the average operator "
         "costs of the planning task (calculated only once and not updated "
         "during sampling!) to take non-unit cost problems into account. This "
-        "yields a random walk of an expected lenght of np = 2 * estimated "
+        "yields a random walk of an expected length of np = 2 * estimated "
         "number of solution steps. If the random walk gets stuck, it is being "
         "restarted from the initial state, exactly as described in the "
         "original paper.\n\n"
@@ -578,7 +578,7 @@ static basic_string<char> paper_references() {
                "https://ai.dmi.unibas.ch/papers/sievers-et-al-socs2012.pdf",
                "Proceedings of the Fifth Annual Symposium on Combinatorial"
                " Search (SoCS 2012)",
-               "105-111", "AAAI Press", "2012");
+               "49-56", "AAAI Press", "2012");
 }
 
 class PatternCollectionGeneratorHillclimbingFeature

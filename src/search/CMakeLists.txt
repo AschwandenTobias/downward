@@ -117,6 +117,8 @@ create_fast_downward_library(
         plan_improvement/minimal_reduction
         plan_improvement/combined_reductions_without_static
         plan_improvement/plan_neighborhood_graph_search
+        plan_improvement/window_replacement
+        evaluators/bounded_evaluator
         pruning_method
         search_algorithm
         search_node_info

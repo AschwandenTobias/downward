@@ -14,6 +14,7 @@
 #include "plan_improvement/minimal_reduction.h"
 #include "plan_improvement/operator_reduction.h"
 #include "plan_improvement/plan_neighborhood_graph_search.h"
+#include "plan_improvement/window_replacement.h"
 #include "plugins/any.h"
 #include "plugins/doc_printer.h"
 #include "plugins/plugin.h"
@@ -211,6 +212,9 @@ static ParsedSearchOptions parse_cmd_line_aux(const vector<string> &args) {
 
                 parsed_options.plan_improver =
                     make_shared<PlanNeighborhoodGraphSearch>(neighborhood_size);
+            } else if (improvement_arg == "wr") {
+                parsed_options.plan_improver =
+                    make_shared<ActionEliminationWindowReplacement>();
             } else {
                 input_error(
                     "unknown plan improvement method: " + improvement_arg);

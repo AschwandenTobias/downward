@@ -39,6 +39,31 @@ class CommonParser(Parser):
         self.add_function(search_from_bottom, file=file)
 
 
+def parse_anytime_plans(content, props):
+    costs = []
+    times = []
+
+    current_time = None
+
+    for line in content.splitlines():
+        time_match = re.search(r"\[t=([0-9.]+)s,", line)
+
+        if time_match:
+            current_time = float(time_match.group(1))
+
+        cost_match = re.search(r"Plan cost: ([0-9]+)", line)
+
+        if cost_match:
+            costs.append(int(cost_match.group(1)))
+            times.append(current_time)
+
+    if costs:
+        props["anytime_plan_costs"] = costs
+        props["anytime_plan_times"] = times
+        props["first_plan_cost"] = costs[0]
+        props["final_plan_cost"] = costs[-1]
+        props["num_plans"] = len(costs)
+
 def get_parser():
     parser = CommonParser()
 
@@ -96,4 +121,5 @@ def get_parser():
         r"Graph edges: (\d+)",
         type=int,
     )
+    parser.add_function(parse_anytime_plans, file="run.log")
     return parser

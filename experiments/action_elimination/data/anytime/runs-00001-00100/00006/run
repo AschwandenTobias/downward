@@ -1,0 +1,27 @@
+#! /usr/bin/env python
+
+import logging
+import os
+import platform
+
+from lab.calls.call import Call
+from lab import tools
+
+tools.configure_logging()
+
+logging.info(f"node: {platform.node()}")
+
+run_log = open("run.log", "wb")
+run_err = open("run.err", "wb", buffering=0)  # disable buffering
+redirects = {"stdout": run_log, "stderr": run_err}
+
+# Make sure we're in the run directory.
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+Call(['/home/tobia/ai_group_project/downward/experiments/action_elimination/.venv/bin/python3', '/home/tobia/ai_group_project/downward/experiments/action_elimination/data/anytime/code-9bdb9e634ff50721663fbf2efde765f0e38ebfde_e5e41175/fast-downward.py', '--validate', '--overall-time-limit', '30m', '--overall-memory-limit', '3584M', '--overall-time-limit', '30s', '--overall-memory-limit', '1G', 'domain.pddl', 'problem.pddl', '--search', 'iterated([lazy_wastar([ff()],w=5),lazy_wastar([ff()],w=3),lazy_wastar([ff()],w=2),lazy_wastar([ff()],w=1)],pass_bound=true,repeat_last=false,continue_on_solve=true,cost_type=normal,bound=infinity,max_time=infinity,description="iterated wastar ff",verbosity=normal)'], hard_stderr_limit=10240, hard_stdout_limit=10240, memory_limit=None, name='planner', soft_stderr_limit=64, soft_stdout_limit=1024, time_limit=None, wall_time_limit=None, **redirects).wait()
+
+
+for f in [run_log, run_err]:
+    f.close()
+    if os.path.getsize(f.name) == 0:
+        os.remove(f.name)

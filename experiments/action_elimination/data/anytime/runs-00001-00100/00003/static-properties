@@ -1,0 +1,31 @@
+{
+  "algorithm": "0_iterated_wastar_ff",
+  "build_options": [],
+  "component_options": [
+    "--search",
+    "iterated([lazy_wastar([ff()],w=5),lazy_wastar([ff()],w=3),lazy_wastar([ff()],w=2),lazy_wastar([ff()],w=1)],pass_bound=true,repeat_last=false,continue_on_solve=true,cost_type=normal,bound=infinity,max_time=infinity,description=\"iterated wastar ff\",verbosity=normal)"
+  ],
+  "domain": "blocks",
+  "driver_options": [
+    "--validate",
+    "--overall-time-limit",
+    "30m",
+    "--overall-memory-limit",
+    "3584M",
+    "--overall-time-limit",
+    "30s",
+    "--overall-memory-limit",
+    "1G"
+  ],
+  "experiment_name": "anytime",
+  "global_revision": "9bdb9e634ff50721663fbf2efde765f0e38ebfde",
+  "id": [
+    "0_iterated_wastar_ff",
+    "blocks",
+    "probBLOCKS-15-0.pddl"
+  ],
+  "local_revision": "operator_reduction",
+  "problem": "probBLOCKS-15-0.pddl",
+  "repo": "/home/tobia/ai_group_project/downward",
+  "run_dir": "runs-00001-00100/00003"
+}

@@ -1,0 +1,18 @@
+{
+  "algorithms": [
+    "1_lf_ae",
+    "2_lf_rr"
+  ],
+  "experiment_file": "ae_rr.py",
+  "runs": 12,
+  "suite": {
+    "/home/tobia/ai_group_project/benchmarks": [
+      "blocks:probBLOCKS-4-0.pddl",
+      "blocks:probBLOCKS-5-0.pddl",
+      "blocks:probBLOCKS-15-0.pddl",
+      "elevators-sat08-strips:p01.pddl",
+      "elevators-sat08-strips:p02.pddl",
+      "elevators-sat08-strips:p23.pddl"
+    ]
+  }
+}

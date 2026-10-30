@@ -1,0 +1,264 @@
+INFO     planner time limit: 30s
+INFO     planner memory limit: 1024 MB
+
+INFO     Running translator.
+INFO     translator stdin: None
+INFO     translator time limit: 29s
+INFO     translator memory limit: 1024 MB
+INFO     translator command line string: /home/tobia/ai_group_project/downward/experiments/action_elimination/.venv/bin/python3 -m fast_downward.translate domain.pddl problem.pddl --sas-file output.sas
+Parsing...
+Parsing: [0.000s CPU, 0.001s wall-clock]
+Normalizing task... [0.000s CPU, 0.000s wall-clock]
+Instantiating...
+Generating Datalog program... [0.000s CPU, 0.000s wall-clock]
+Normalizing Datalog program...
+Normalizing Datalog program: [0.000s CPU, 0.004s wall-clock]
+Preparing model... [0.000s CPU, 0.000s wall-clock]
+Generated 21 rules.
+Computing model... [0.000s CPU, 0.001s wall-clock]
+78 relevant atoms
+52 auxiliary atoms
+130 final queue length
+206 total queue pushes
+Completing instantiation... [0.010s CPU, 0.001s wall-clock]
+Instantiating: [0.010s CPU, 0.007s wall-clock]
+Computing fact groups...
+Finding invariants...
+10 initial candidates
+Finding invariants: [0.000s CPU, 0.004s wall-clock]
+Checking invariant weight... [0.000s CPU, 0.000s wall-clock]
+Instantiating groups... [0.000s CPU, 0.000s wall-clock]
+Collecting mutex groups... [0.000s CPU, 0.000s wall-clock]
+Choosing groups...
+5 uncovered facts
+Choosing groups: [0.000s CPU, 0.000s wall-clock]
+Building translation key... [0.000s CPU, 0.000s wall-clock]
+Computing fact groups: [0.000s CPU, 0.005s wall-clock]
+Building STRIPS to SAS dictionary... [0.000s CPU, 0.000s wall-clock]
+Building dictionary for full mutex groups... [0.000s CPU, 0.000s wall-clock]
+Building mutex information...
+Building mutex information: [0.000s CPU, 0.000s wall-clock]
+Translating task...
+Processing axioms...
+Simplifying axioms... [0.000s CPU, 0.000s wall-clock]
+Translator axioms removed by simplifying: 0
+Processing axioms: [0.000s CPU, 0.001s wall-clock]
+Translating task: [0.000s CPU, 0.002s wall-clock]
+44 effect conditions simplified
+0 implied preconditions added
+Detecting unreachable propositions...
+0 operators removed
+0 axioms removed
+8 propositions removed
+Detecting unreachable propositions: [0.000s CPU, 0.001s wall-clock]
+Reordering and filtering variables...
+9 of 9 variables necessary.
+5 of 9 mutex groups necessary.
+32 of 32 operators necessary.
+0 of 0 axiom rules necessary.
+Reordering and filtering variables: [0.000s CPU, 0.001s wall-clock]
+Translator variables: 9
+Translator derived variables: 0
+Translator facts: 30
+Translator goal facts: 3
+Translator mutex groups: 5
+Translator total mutex groups size: 25
+Translator operators: 32
+Translator axioms: 0
+Translator task size: 295
+Translator peak memory: 35376 KB
+Writing output... [0.000s CPU, 0.001s wall-clock]
+Done! [0.020s CPU, 0.020s wall-clock]
+translate exit code: 0
+
+INFO     Running search (release).
+INFO     search stdin: output.sas
+INFO     search time limit: 29s
+INFO     search memory limit: 1024 MB
+INFO     search command line string: /home/tobia/ai_group_project/downward/experiments/action_elimination/data/anytime/code-9bdb9e634ff50721663fbf2efde765f0e38ebfde_e5e41175/builds/release/bin/downward --search 'iterated([lazy_wastar([ff()],w=5),lazy_wastar([ff()],w=3),lazy_wastar([ff()],w=2),lazy_wastar([ff()],w=1)],pass_bound=true,repeat_last=false,continue_on_solve=true,cost_type=normal,bound=infinity,max_time=infinity,description="iterated wastar ff",verbosity=normal)' --internal-plan-file sas_plan < output.sas
+[t=0.000000s, 11668 KB] Search code revision: 9bdb9e634
+[t=0.000000s, 11668 KB] reading input...
+[t=0.000000s, 11668 KB] done reading input!
+[t=0.000000s, 12064 KB] Building successor generator... done!
+[t=0.004000s, 12064 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.004000s, 12064 KB] time for successor generation creation: 0.000000s
+[t=0.004000s, 12064 KB] Variables: 9
+[t=0.004000s, 12064 KB] FactPairs: 30
+[t=0.004000s, 12064 KB] Bytes per state: 4
+[t=0.004000s, 12064 KB] Simplifying 120 unary operators... done! [96 unary operators]
+[t=0.004000s, 12064 KB] time to simplify: 0.000000s
+[t=0.004000s, 12064 KB] Initializing additive heuristic...
+[t=0.004000s, 12064 KB] Initializing FF heuristic...
+[t=0.004000s, 12064 KB] Building successor generator... done!
+[t=0.004000s, 12064 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.004000s, 12064 KB] time for successor generation creation: 0.000000s
+[t=0.004000s, 12064 KB] Variables: 9
+[t=0.004000s, 12064 KB] FactPairs: 30
+[t=0.004000s, 12064 KB] Bytes per state: 4
+[t=0.004000s, 12064 KB] Starting search: lazy_wastar
+[t=0.004000s, 12064 KB] Conducting lazy best first search, (real) bound = 2147483647
+[t=0.004000s, 12064 KB] New best heuristic value for ff: 6
+[t=0.004000s, 12064 KB] g=0, 1 evaluated, 0 expanded
+[t=0.004000s, 12064 KB] Initial heuristic value for ff: 6
+[t=0.004000s, 12064 KB] New best heuristic value for ff: 4
+[t=0.004000s, 12064 KB] g=2, 6 evaluated, 5 expanded
+[t=0.004000s, 12064 KB] New best heuristic value for ff: 2
+[t=0.004000s, 12064 KB] g=4, 9 evaluated, 8 expanded
+[t=0.004000s, 12064 KB] New best heuristic value for ff: 1
+[t=0.004000s, 12064 KB] g=5, 10 evaluated, 9 expanded
+[t=0.004000s, 12064 KB] Solution found!
+[t=0.004000s, 12064 KB] Actual search time: 0.000000s
+pick-up b (1)
+stack b a (1)
+pick-up c (1)
+stack c b (1)
+pick-up d (1)
+stack d c (1)
+[t=0.004000s, 12064 KB] Plan length: 6 step(s).
+[t=0.004000s, 12064 KB] Plan cost: 6
+[t=0.004000s, 12064 KB] Expanded 10 state(s).
+[t=0.004000s, 12064 KB] Reopened 0 state(s).
+[t=0.004000s, 12064 KB] Evaluated 11 state(s).
+[t=0.004000s, 12064 KB] Evaluations: 11
+[t=0.004000s, 12064 KB] Generated 33 state(s).
+[t=0.004000s, 12064 KB] Dead ends: 0 state(s).
+[t=0.004000s, 12064 KB] Number of registered states: 11
+[t=0.004000s, 12064 KB] Int hash set load factor: 11/16 = 0.687500
+[t=0.004000s, 12064 KB] Int hash set resizes: 4
+[t=0.004000s, 12064 KB] Best solution cost so far: 6
+[t=0.008025s, 12064 KB] Solution found - keep searching
+[t=0.008025s, 12064 KB] Simplifying 120 unary operators... done! [96 unary operators]
+[t=0.008025s, 12064 KB] time to simplify: 0.000000s
+[t=0.008025s, 12064 KB] Initializing additive heuristic...
+[t=0.008025s, 12064 KB] Initializing FF heuristic...
+[t=0.008025s, 12064 KB] Building successor generator... done!
+[t=0.008025s, 12064 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.008025s, 12064 KB] time for successor generation creation: 0.000000s
+[t=0.008025s, 12064 KB] Variables: 9
+[t=0.008025s, 12064 KB] FactPairs: 30
+[t=0.008025s, 12064 KB] Bytes per state: 4
+[t=0.008025s, 12064 KB] Starting search: lazy_wastar
+[t=0.008025s, 12064 KB] Conducting lazy best first search, (real) bound = 6
+[t=0.008025s, 12064 KB] New best heuristic value for ff: 6
+[t=0.008025s, 12064 KB] g=0, 1 evaluated, 0 expanded
+[t=0.008025s, 12064 KB] Initial heuristic value for ff: 6
+[t=0.008025s, 12064 KB] New best heuristic value for ff: 4
+[t=0.008025s, 12064 KB] g=2, 6 evaluated, 5 expanded
+[t=0.008025s, 12064 KB] New best heuristic value for ff: 2
+[t=0.008025s, 12064 KB] g=4, 9 evaluated, 8 expanded
+[t=0.008025s, 12064 KB] New best heuristic value for ff: 1
+[t=0.008025s, 12064 KB] g=5, 10 evaluated, 9 expanded
+[t=0.008025s, 12064 KB] Search terminated -- no plan with cost 5 or less exists!
+[t=0.008025s, 12064 KB] Actual search time: 0.000000s
+[t=0.008025s, 12064 KB] Expanded 106 state(s).
+[t=0.008025s, 12064 KB] Reopened 5 state(s).
+[t=0.008025s, 12064 KB] Evaluated 106 state(s).
+[t=0.008025s, 12064 KB] Evaluations: 101
+[t=0.008025s, 12064 KB] Generated 263 state(s).
+[t=0.008025s, 12064 KB] Dead ends: 0 state(s).
+[t=0.008025s, 12064 KB] Number of registered states: 101
+[t=0.008025s, 12064 KB] Int hash set load factor: 101/128 = 0.789062
+[t=0.008025s, 12064 KB] Int hash set resizes: 7
+[t=0.008025s, 12064 KB] Best solution cost so far: 6
+[t=0.008025s, 12064 KB] No solution found - keep searching
+[t=0.008025s, 12064 KB] Simplifying 120 unary operators... done! [96 unary operators]
+[t=0.008025s, 12064 KB] time to simplify: 0.000000s
+[t=0.008025s, 12064 KB] Initializing additive heuristic...
+[t=0.008025s, 12064 KB] Initializing FF heuristic...
+[t=0.008025s, 12064 KB] Building successor generator... done!
+[t=0.008025s, 12064 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.012013s, 12064 KB] time for successor generation creation: 0.000000s
+[t=0.012013s, 12064 KB] Variables: 9
+[t=0.012013s, 12064 KB] FactPairs: 30
+[t=0.012013s, 12064 KB] Bytes per state: 4
+[t=0.012013s, 12064 KB] Starting search: lazy_wastar
+[t=0.012013s, 12064 KB] Conducting lazy best first search, (real) bound = 6
+[t=0.012013s, 12064 KB] New best heuristic value for ff: 6
+[t=0.012013s, 12064 KB] g=0, 1 evaluated, 0 expanded
+[t=0.012013s, 12064 KB] Initial heuristic value for ff: 6
+[t=0.012013s, 12064 KB] New best heuristic value for ff: 4
+[t=0.012013s, 12064 KB] g=2, 6 evaluated, 5 expanded
+[t=0.012013s, 12064 KB] New best heuristic value for ff: 2
+[t=0.012013s, 12064 KB] g=4, 9 evaluated, 8 expanded
+[t=0.012013s, 12064 KB] New best heuristic value for ff: 1
+[t=0.012013s, 12064 KB] g=5, 10 evaluated, 9 expanded
+[t=0.012013s, 12064 KB] Search terminated -- no plan with cost 5 or less exists!
+[t=0.012013s, 12064 KB] Actual search time: 0.000000s
+[t=0.012013s, 12064 KB] Expanded 103 state(s).
+[t=0.012013s, 12064 KB] Reopened 2 state(s).
+[t=0.012013s, 12064 KB] Evaluated 103 state(s).
+[t=0.012013s, 12064 KB] Evaluations: 101
+[t=0.012013s, 12064 KB] Generated 254 state(s).
+[t=0.012013s, 12064 KB] Dead ends: 0 state(s).
+[t=0.012013s, 12064 KB] Number of registered states: 101
+[t=0.012013s, 12064 KB] Int hash set load factor: 101/128 = 0.789062
+[t=0.012013s, 12064 KB] Int hash set resizes: 7
+[t=0.012013s, 12064 KB] Best solution cost so far: 6
+[t=0.012013s, 12064 KB] No solution found - keep searching
+[t=0.012013s, 12064 KB] Simplifying 120 unary operators... done! [96 unary operators]
+[t=0.012013s, 12064 KB] time to simplify: 0.000000s
+[t=0.012013s, 12064 KB] Initializing additive heuristic...
+[t=0.012013s, 12064 KB] Initializing FF heuristic...
+[t=0.012013s, 12064 KB] Building successor generator... done!
+[t=0.012013s, 12064 KB] peak memory difference for successor generator creation: 0 KB
+[t=0.012013s, 12064 KB] time for successor generation creation: 0.000000s
+[t=0.012013s, 12064 KB] Variables: 9
+[t=0.012013s, 12064 KB] FactPairs: 30
+[t=0.012013s, 12064 KB] Bytes per state: 4
+[t=0.012013s, 12064 KB] Starting search: lazy_wastar
+[t=0.012013s, 12064 KB] Conducting lazy best first search, (real) bound = 6
+[t=0.012013s, 12064 KB] New best heuristic value for ff: 6
+[t=0.016033s, 12064 KB] g=0, 1 evaluated, 0 expanded
+[t=0.016033s, 12064 KB] Initial heuristic value for ff: 6
+[t=0.016033s, 12064 KB] New best heuristic value for ff: 4
+[t=0.016033s, 12064 KB] g=2, 6 evaluated, 5 expanded
+[t=0.016033s, 12064 KB] New best heuristic value for ff: 2
+[t=0.016033s, 12064 KB] g=4, 17 evaluated, 16 expanded
+[t=0.016033s, 12064 KB] New best heuristic value for ff: 1
+[t=0.016033s, 12064 KB] g=5, 18 evaluated, 17 expanded
+[t=0.016033s, 12064 KB] Search terminated -- no plan with cost 5 or less exists!
+[t=0.016033s, 12064 KB] Actual search time: 0.004021s
+[t=0.016033s, 12064 KB] Expanded 101 state(s).
+[t=0.016033s, 12064 KB] Reopened 0 state(s).
+[t=0.016033s, 12064 KB] Evaluated 101 state(s).
+[t=0.016033s, 12064 KB] Evaluations: 101
+[t=0.016033s, 12064 KB] Generated 248 state(s).
+[t=0.016033s, 12064 KB] Dead ends: 0 state(s).
+[t=0.016033s, 12064 KB] Number of registered states: 101
+[t=0.016033s, 12064 KB] Int hash set load factor: 101/128 = 0.789062
+[t=0.016033s, 12064 KB] Int hash set resizes: 7
+[t=0.016033s, 12064 KB] Best solution cost so far: 6
+[t=0.016033s, 12064 KB] No solution found - keep searching
+[t=0.016033s, 12064 KB] Actual search time: 0.012034s
+[t=0.016033s, 12064 KB] Cumulative statistics:
+[t=0.016033s, 12064 KB] Expanded 320 state(s).
+[t=0.016033s, 12064 KB] Reopened 7 state(s).
+[t=0.016033s, 12064 KB] Evaluated 321 state(s).
+[t=0.016033s, 12064 KB] Evaluations: 314
+[t=0.016033s, 12064 KB] Generated 798 state(s).
+[t=0.016033s, 12064 KB] Dead ends: 0 state(s).
+[t=0.016033s, 12064 KB] Search time: 0.012034s
+[t=0.016033s, 12064 KB] Plan improvement time: 0.000000s
+[t=0.016033s, 12064 KB] Total time: 0.016033s
+Solution found.
+Peak memory: 12064 KB
+Remove intermediate file output.sas
+search exit code: 0
+
+INFO     Running validate.
+INFO     validate stdin: None
+INFO     validate time limit: None
+INFO     validate memory limit: None
+INFO     validate command line string: /home/tobia/bin/validate domain.pddl problem.pddl sas_plan.1
+Checking plan: sas_plan.1
+Plan executed successfully - checking goal
+Plan valid
+Final value: 6 
+
+Successful plans:
+Value: 6
+ sas_plan.1 6 
+
+validate exit code: 0
+
+INFO     Planner time: 0.33s

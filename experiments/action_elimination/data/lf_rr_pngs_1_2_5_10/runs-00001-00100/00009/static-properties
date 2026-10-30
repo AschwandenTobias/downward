@@ -1,0 +1,33 @@
+{
+  "algorithm": "2_lf_pngs_1",
+  "build_options": [],
+  "component_options": [
+    "--search",
+    "let(hlm, eval_modify_costs(landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),pref=false),cost_type=one),let(hff, eval_modify_costs(ff(),cost_type=one),lazy_greedy([hff,hlm],preferred=[hff,hlm],cost_type=one,reopen_closed=false)))",
+    "--plan-improvement",
+    "pngs(1)"
+  ],
+  "domain": "blocks",
+  "driver_options": [
+    "--validate",
+    "--overall-time-limit",
+    "30m",
+    "--overall-memory-limit",
+    "3584M",
+    "--overall-time-limit",
+    "5m",
+    "--overall-memory-limit",
+    "1G"
+  ],
+  "experiment_name": "lf_rr_pngs_1_2_5_10",
+  "global_revision": "49d284d729f9a376f0a3111f3767e1cd5adb6e35",
+  "id": [
+    "2_lf_pngs_1",
+    "blocks",
+    "probBLOCKS-4-0.pddl"
+  ],
+  "local_revision": "operator_reduction",
+  "problem": "probBLOCKS-4-0.pddl",
+  "repo": "/home/tobia/ai_group_project/downward",
+  "run_dir": "runs-00001-00100/00009"
+}

@@ -1,0 +1,17 @@
+{
+  "algorithms": [
+    "0_iterated_wastar_ff"
+  ],
+  "experiment_file": "anytime.py",
+  "runs": 6,
+  "suite": {
+    "/home/tobia/ai_group_project/benchmarks": [
+      "blocks:probBLOCKS-4-0.pddl",
+      "blocks:probBLOCKS-5-0.pddl",
+      "blocks:probBLOCKS-15-0.pddl",
+      "elevators-sat08-strips:p01.pddl",
+      "elevators-sat08-strips:p02.pddl",
+      "elevators-sat08-strips:p23.pddl"
+    ]
+  }
+}

@@ -121,5 +121,11 @@ def get_parser():
         r"Graph edges: (\d+)",
         type=int,
     )
+    parser.add_pattern(
+        "plan_improvement_time",
+        r"Plan improvement time: ([\d.]+)s",
+        type=float,
+        required=False,
+    )
     parser.add_function(parse_anytime_plans, file="run.log")
     return parser

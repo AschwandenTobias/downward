@@ -136,16 +136,18 @@ ATTRIBUTES = [
     "error",
     "cost",
     "plan_length",
-    "search_time",
-    "total_time",
-    "memory",
-    "first_plan_cost",
+    "initial_plan_length",
+    "final_plan_length",
+    "initial_plan_cost",
     "final_plan_cost",
+    "search_time",
+    "plan_improvement_time",
+    "total_time",
+    "planner_time",
+    "planner_wall_clock_time",
+    "memory",
     "num_plans",
-    "anytime_plan_costs",
-    "anytime_plan_times",
 ]
-
 
 # ---------------------------------------------------------------------------
 # Experiment
@@ -187,12 +189,10 @@ exp.add_suite(
 
 exp.add_parser(exp.EXITCODE_PARSER)
 exp.add_parser(exp.TRANSLATOR_PARSER)
-exp.add_parser(exp.ANYTIME_SEARCH_PARSER)
-
-exp.add_parser(custom_parser.get_parser())
-
+exp.add_parser(exp.SINGLE_SEARCH_PARSER)
 exp.add_parser(exp.PLANNER_PARSER)
 
+exp.add_parser(custom_parser.get_parser())
 
 # ---------------------------------------------------------------------------
 # Experiment steps

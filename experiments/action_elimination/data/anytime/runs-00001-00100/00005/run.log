@@ -1,465 +1,0 @@
-INFO     planner time limit: 30s
-INFO     planner memory limit: 1024 MB
-
-INFO     Running translator.
-INFO     translator stdin: None
-INFO     translator time limit: 29s
-INFO     translator memory limit: 1024 MB
-INFO     translator command line string: /home/tobia/ai_group_project/downward/experiments/action_elimination/.venv/bin/python3 -m fast_downward.translate domain.pddl problem.pddl --sas-file output.sas
-Parsing...
-Parsing: [0.000s CPU, 0.003s wall-clock]
-Normalizing task... [0.000s CPU, 0.000s wall-clock]
-Instantiating...
-Generating Datalog program... [0.000s CPU, 0.001s wall-clock]
-Normalizing Datalog program...
-Normalizing Datalog program: [0.010s CPU, 0.003s wall-clock]
-Preparing model... [0.000s CPU, 0.002s wall-clock]
-Generated 50 rules.
-Computing model... [0.020s CPU, 0.015s wall-clock]
-843 relevant atoms
-895 auxiliary atoms
-1738 final queue length
-2732 total queue pushes
-Completing instantiation... [0.010s CPU, 0.017s wall-clock]
-Instantiating: [0.040s CPU, 0.039s wall-clock]
-Computing fact groups...
-Finding invariants...
-12 initial candidates
-Finding invariants: [0.010s CPU, 0.002s wall-clock]
-Checking invariant weight... [0.000s CPU, 0.000s wall-clock]
-Instantiating groups... [0.000s CPU, 0.000s wall-clock]
-Collecting mutex groups... [0.000s CPU, 0.000s wall-clock]
-Choosing groups...
-0 uncovered facts
-Choosing groups: [0.000s CPU, 0.000s wall-clock]
-Building translation key... [0.000s CPU, 0.000s wall-clock]
-Computing fact groups: [0.010s CPU, 0.003s wall-clock]
-Building STRIPS to SAS dictionary... [0.000s CPU, 0.000s wall-clock]
-Building dictionary for full mutex groups... [0.000s CPU, 0.000s wall-clock]
-Building mutex information...
-Building mutex information: [0.000s CPU, 0.000s wall-clock]
-Translating task...
-Processing axioms...
-Simplifying axioms... [0.000s CPU, 0.000s wall-clock]
-Translator axioms removed by simplifying: 0
-Processing axioms: [0.000s CPU, 0.001s wall-clock]
-Translating task: [0.010s CPU, 0.011s wall-clock]
-0 effect conditions simplified
-0 implied preconditions added
-Detecting unreachable propositions...
-0 operators removed
-0 axioms removed
-13 propositions removed
-Detecting unreachable propositions: [0.010s CPU, 0.007s wall-clock]
-Reordering and filtering variables...
-13 of 13 variables necessary.
-0 of 13 mutex groups necessary.
-580 of 580 operators necessary.
-0 of 0 axiom rules necessary.
-Reordering and filtering variables: [0.000s CPU, 0.002s wall-clock]
-Translator variables: 13
-Translator derived variables: 0
-Translator facts: 99
-Translator goal facts: 5
-Translator mutex groups: 0
-Translator total mutex groups size: 0
-Translator operators: 580
-Translator axioms: 0
-Translator task size: 3357
-Translator peak memory: 37396 KB
-Writing output... [0.000s CPU, 0.004s wall-clock]
-Done! [0.070s CPU, 0.072s wall-clock]
-translate exit code: 0
-
-INFO     Running search (release).
-INFO     search stdin: output.sas
-INFO     search time limit: 29s
-INFO     search memory limit: 1024 MB
-INFO     search command line string: /home/tobia/ai_group_project/downward/experiments/action_elimination/data/anytime/code-9bdb9e634ff50721663fbf2efde765f0e38ebfde_e5e41175/builds/release/bin/downward --search 'iterated([lazy_wastar([ff()],w=5),lazy_wastar([ff()],w=3),lazy_wastar([ff()],w=2),lazy_wastar([ff()],w=1)],pass_bound=true,repeat_last=false,continue_on_solve=true,cost_type=normal,bound=infinity,max_time=infinity,description="iterated wastar ff",verbosity=normal)' --internal-plan-file sas_plan < output.sas
-[t=0.000000s, 11668 KB] Search code revision: 9bdb9e634
-[t=0.000000s, 11668 KB] reading input...
-[t=0.003963s, 11800 KB] done reading input!
-[t=0.003963s, 12196 KB] Building successor generator... done!
-[t=0.007938s, 12196 KB] peak memory difference for successor generator creation: 0 KB
-[t=0.007938s, 12196 KB] time for successor generation creation: 0.003975s
-[t=0.007938s, 12196 KB] Variables: 13
-[t=0.007938s, 12196 KB] FactPairs: 99
-[t=0.007938s, 12196 KB] Bytes per state: 8
-[t=0.007938s, 12352 KB] Simplifying 1080 unary operators... done! [1080 unary operators]
-[t=0.007938s, 12352 KB] time to simplify: 0.000000s
-[t=0.007938s, 12352 KB] Initializing additive heuristic...
-[t=0.007938s, 12352 KB] Initializing FF heuristic...
-[t=0.007938s, 12352 KB] Building successor generator... done!
-[t=0.007938s, 12352 KB] peak memory difference for successor generator creation: 0 KB
-[t=0.007938s, 12352 KB] time for successor generation creation: 0.000000s
-[t=0.007938s, 12352 KB] Variables: 13
-[t=0.007938s, 12352 KB] FactPairs: 99
-[t=0.007938s, 12352 KB] Bytes per state: 8
-[t=0.007938s, 12352 KB] Starting search: lazy_wastar
-[t=0.007938s, 12352 KB] Conducting lazy best first search, (real) bound = 2147483647
-[t=0.007938s, 12352 KB] New best heuristic value for ff: 40
-[t=0.007938s, 12352 KB] g=0, 1 evaluated, 0 expanded
-[t=0.007938s, 12352 KB] Initial heuristic value for ff: 40
-[t=0.007938s, 12352 KB] New best heuristic value for ff: 35
-[t=0.007938s, 12352 KB] g=7, 2 evaluated, 1 expanded
-[t=0.007938s, 12352 KB] New best heuristic value for ff: 34
-[t=0.007938s, 12352 KB] g=13, 3 evaluated, 2 expanded
-[t=0.011937s, 12352 KB] New best heuristic value for ff: 31
-[t=0.011937s, 12352 KB] g=13, 41 evaluated, 40 expanded
-[t=0.011937s, 12352 KB] New best heuristic value for ff: 30
-[t=0.011937s, 12352 KB] g=19, 42 evaluated, 41 expanded
-[t=0.011937s, 12352 KB] New best heuristic value for ff: 28
-[t=0.011937s, 12352 KB] g=21, 48 evaluated, 47 expanded
-[t=0.011937s, 12352 KB] New best heuristic value for ff: 27
-[t=0.011937s, 12352 KB] g=27, 49 evaluated, 48 expanded
-[t=0.043931s, 12620 KB] New best heuristic value for ff: 22
-[t=0.043931s, 12620 KB] g=31, 1332 evaluated, 1331 expanded, 15 reopened
-[t=0.043931s, 12620 KB] New best heuristic value for ff: 21
-[t=0.043931s, 12620 KB] g=37, 1333 evaluated, 1332 expanded, 15 reopened
-[t=0.043931s, 12620 KB] New best heuristic value for ff: 15
-[t=0.043931s, 12620 KB] g=37, 1420 evaluated, 1419 expanded, 15 reopened
-[t=0.047929s, 12620 KB] New best heuristic value for ff: 14
-[t=0.047929s, 12620 KB] g=43, 1598 evaluated, 1597 expanded, 15 reopened
-[t=0.047929s, 12620 KB] New best heuristic value for ff: 13
-[t=0.047929s, 12620 KB] g=44, 1599 evaluated, 1598 expanded, 15 reopened
-[t=0.047929s, 12620 KB] New best heuristic value for ff: 7
-[t=0.047929s, 12620 KB] g=50, 1606 evaluated, 1605 expanded, 15 reopened
-[t=0.059932s, 12884 KB] New best heuristic value for ff: 6
-[t=0.059932s, 12884 KB] g=65, 2421 evaluated, 2420 expanded, 15 reopened
-[t=0.059932s, 12884 KB] New best heuristic value for ff: 0
-[t=0.059932s, 12884 KB] g=64, 2422 evaluated, 2421 expanded, 15 reopened
-[t=0.063931s, 12884 KB] Solution found!
-[t=0.063931s, 12884 KB] Actual search time: 0.055993s
-move-down-slow slow1-0 n6 n4 (7)
-board p0 slow0-0 n1 n0 n1 (0)
-move-down-slow slow0-0 n1 n0 (6)
-board p3 slow0-0 n0 n1 n2 (0)
-move-up-slow slow0-0 n0 n4 (9)
-leave p0 slow0-0 n4 n2 n1 (0)
-board p2 slow0-0 n4 n1 n2 (0)
-leave p3 slow0-0 n4 n2 n1 (0)
-move-down-slow slow0-0 n4 n0 (9)
-board p0 slow1-0 n4 n0 n1 (0)
-board p3 slow1-0 n4 n1 n2 (0)
-move-up-slow slow1-0 n4 n5 (6)
-leave p2 slow0-0 n0 n1 n0 (0)
-board p4 slow0-0 n0 n0 n1 (0)
-move-up-slow slow0-0 n0 n2 (7)
-move-up-slow slow0-0 n2 n3 (6)
-move-up-slow slow1-0 n5 n7 (7)
-leave p0 slow1-0 n7 n2 n1 (0)
-board p1 slow1-0 n7 n1 n2 (0)
-move-down-slow slow1-0 n7 n5 (7)
-leave p1 slow1-0 n5 n2 n1 (0)
-leave p3 slow1-0 n5 n1 n0 (0)
-leave p4 slow0-0 n3 n1 n0 (0)
-[t=0.063931s, 12884 KB] Plan length: 23 step(s).
-[t=0.063931s, 12884 KB] Plan cost: 64
-[t=0.063931s, 12884 KB] Expanded 2496 state(s).
-[t=0.063931s, 12884 KB] Reopened 15 state(s).
-[t=0.063931s, 12884 KB] Evaluated 2497 state(s).
-[t=0.063931s, 12884 KB] Evaluations: 2482
-[t=0.063931s, 12884 KB] Generated 47061 state(s).
-[t=0.063931s, 12884 KB] Dead ends: 0 state(s).
-[t=0.063931s, 12884 KB] Number of registered states: 2482
-[t=0.063931s, 12884 KB] Int hash set load factor: 2482/4096 = 0.605957
-[t=0.063931s, 12884 KB] Int hash set resizes: 12
-[t=0.063931s, 12884 KB] Best solution cost so far: 64
-[t=0.063931s, 12884 KB] Solution found - keep searching
-[t=0.063931s, 12884 KB] Simplifying 1080 unary operators... done! [1080 unary operators]
-[t=0.063931s, 12884 KB] time to simplify: 0.000000s
-[t=0.063931s, 12884 KB] Initializing additive heuristic...
-[t=0.067938s, 12884 KB] Initializing FF heuristic...
-[t=0.067938s, 12884 KB] Building successor generator... done!
-[t=0.067938s, 12884 KB] peak memory difference for successor generator creation: 0 KB
-[t=0.067938s, 12884 KB] time for successor generation creation: 0.000000s
-[t=0.067938s, 12884 KB] Variables: 13
-[t=0.067938s, 12884 KB] FactPairs: 99
-[t=0.067938s, 12884 KB] Bytes per state: 8
-[t=0.067938s, 12884 KB] Starting search: lazy_wastar
-[t=0.067938s, 12884 KB] Conducting lazy best first search, (real) bound = 64
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 40
-[t=0.067938s, 12884 KB] g=0, 1 evaluated, 0 expanded
-[t=0.067938s, 12884 KB] Initial heuristic value for ff: 40
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 35
-[t=0.067938s, 12884 KB] g=7, 2 evaluated, 1 expanded
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 34
-[t=0.067938s, 12884 KB] g=13, 3 evaluated, 2 expanded
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 31
-[t=0.067938s, 12884 KB] g=13, 41 evaluated, 40 expanded
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 30
-[t=0.067938s, 12884 KB] g=19, 42 evaluated, 41 expanded
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 28
-[t=0.067938s, 12884 KB] g=21, 48 evaluated, 47 expanded
-[t=0.067938s, 12884 KB] New best heuristic value for ff: 27
-[t=0.067938s, 12884 KB] g=27, 49 evaluated, 48 expanded
-[t=0.075947s, 12884 KB] New best heuristic value for ff: 23
-[t=0.075947s, 12884 KB] g=29, 395 evaluated, 394 expanded, 5 reopened
-[t=0.075947s, 12884 KB] New best heuristic value for ff: 22
-[t=0.075947s, 12884 KB] g=35, 396 evaluated, 395 expanded, 5 reopened
-[t=0.115934s, 12884 KB] New best heuristic value for ff: 21
-[t=0.115934s, 12884 KB] g=43, 2080 evaluated, 2079 expanded, 28 reopened
-[t=0.115934s, 12884 KB] New best heuristic value for ff: 20
-[t=0.115934s, 12884 KB] g=44, 2081 evaluated, 2080 expanded, 28 reopened
-[t=0.115934s, 12884 KB] New best heuristic value for ff: 19
-[t=0.115934s, 12884 KB] g=50, 2082 evaluated, 2081 expanded, 28 reopened
-[t=0.115934s, 12884 KB] New best heuristic value for ff: 14
-[t=0.115934s, 12884 KB] g=50, 2086 evaluated, 2085 expanded, 28 reopened
-[t=0.115934s, 12884 KB] New best heuristic value for ff: 13
-[t=0.115934s, 12884 KB] g=56, 2087 evaluated, 2086 expanded, 28 reopened
-[t=0.119939s, 12884 KB] New best heuristic value for ff: 7
-[t=0.119939s, 12884 KB] g=56, 2193 evaluated, 2192 expanded, 28 reopened
-[t=0.127932s, 12884 KB] New best heuristic value for ff: 6
-[t=0.127932s, 12884 KB] g=61, 2846 evaluated, 2845 expanded, 197 reopened
-[t=0.127932s, 12884 KB] New best heuristic value for ff: 0
-[t=0.127932s, 12884 KB] g=60, 2847 evaluated, 2846 expanded, 197 reopened
-[t=0.127932s, 12884 KB] Solution found!
-[t=0.127932s, 12884 KB] Actual search time: 0.059994s
-move-down-slow slow1-0 n6 n4 (7)
-board p0 slow0-0 n1 n0 n1 (0)
-move-down-slow slow0-0 n1 n0 (6)
-board p4 slow0-0 n0 n1 n2 (0)
-move-up-slow slow0-0 n0 n3 (8)
-leave p4 slow0-0 n3 n2 n1 (0)
-move-up-slow slow0-0 n3 n4 (6)
-board p2 slow0-0 n4 n1 n2 (0)
-move-down-slow slow0-0 n4 n0 (9)
-leave p2 slow0-0 n0 n2 n1 (0)
-board p3 slow0-0 n0 n1 n2 (0)
-move-up-slow slow0-0 n0 n4 (9)
-leave p0 slow0-0 n4 n2 n1 (0)
-board p0 slow1-0 n4 n0 n1 (0)
-leave p3 slow0-0 n4 n1 n0 (0)
-board p3 slow1-0 n4 n1 n2 (0)
-move-up-slow slow1-0 n4 n7 (8)
-leave p0 slow1-0 n7 n2 n1 (0)
-board p1 slow1-0 n7 n1 n2 (0)
-move-down-slow slow1-0 n7 n5 (7)
-leave p1 slow1-0 n5 n2 n1 (0)
-leave p3 slow1-0 n5 n1 n0 (0)
-[t=0.127932s, 12884 KB] Plan length: 22 step(s).
-[t=0.127932s, 12884 KB] Plan cost: 60
-[t=0.127932s, 12884 KB] Expanded 2849 state(s).
-[t=0.127932s, 12884 KB] Reopened 197 state(s).
-[t=0.127932s, 12884 KB] Evaluated 2850 state(s).
-[t=0.127932s, 12884 KB] Evaluations: 2653
-[t=0.127932s, 12884 KB] Generated 53219 state(s).
-[t=0.127932s, 12884 KB] Dead ends: 0 state(s).
-[t=0.127932s, 12884 KB] Number of registered states: 2653
-[t=0.127932s, 12884 KB] Int hash set load factor: 2653/4096 = 0.647705
-[t=0.127932s, 12884 KB] Int hash set resizes: 12
-[t=0.127932s, 12884 KB] Best solution cost so far: 60
-[t=0.127932s, 12884 KB] Solution found - keep searching
-[t=0.127932s, 12884 KB] Simplifying 1080 unary operators... done! [1080 unary operators]
-[t=0.127932s, 12884 KB] time to simplify: 0.000000s
-[t=0.127932s, 12884 KB] Initializing additive heuristic...
-[t=0.127932s, 12884 KB] Initializing FF heuristic...
-[t=0.127932s, 12884 KB] Building successor generator... done!
-[t=0.127932s, 12884 KB] peak memory difference for successor generator creation: 0 KB
-[t=0.127932s, 12884 KB] time for successor generation creation: 0.000000s
-[t=0.127932s, 12884 KB] Variables: 13
-[t=0.127932s, 12884 KB] FactPairs: 99
-[t=0.127932s, 12884 KB] Bytes per state: 8
-[t=0.127932s, 12884 KB] Starting search: lazy_wastar
-[t=0.127932s, 12884 KB] Conducting lazy best first search, (real) bound = 60
-[t=0.127932s, 12884 KB] New best heuristic value for ff: 40
-[t=0.127932s, 12884 KB] g=0, 1 evaluated, 0 expanded
-[t=0.127932s, 12884 KB] Initial heuristic value for ff: 40
-[t=0.127932s, 12884 KB] New best heuristic value for ff: 35
-[t=0.127932s, 12884 KB] g=7, 2 evaluated, 1 expanded
-[t=0.127932s, 12884 KB] New best heuristic value for ff: 34
-[t=0.131934s, 12884 KB] g=13, 3 evaluated, 2 expanded
-[t=0.131934s, 12884 KB] New best heuristic value for ff: 31
-[t=0.131934s, 12884 KB] g=13, 41 evaluated, 40 expanded
-[t=0.131934s, 12884 KB] New best heuristic value for ff: 30
-[t=0.131934s, 12884 KB] g=19, 42 evaluated, 41 expanded
-[t=0.131934s, 12884 KB] New best heuristic value for ff: 28
-[t=0.131934s, 12884 KB] g=21, 48 evaluated, 47 expanded
-[t=0.135936s, 12884 KB] New best heuristic value for ff: 27
-[t=0.139945s, 12884 KB] g=20, 279 evaluated, 278 expanded, 2 reopened
-[t=0.151932s, 12884 KB] New best heuristic value for ff: 23
-[t=0.151932s, 12884 KB] g=29, 1058 evaluated, 1057 expanded, 12 reopened
-[t=0.151932s, 12884 KB] New best heuristic value for ff: 22
-[t=0.151932s, 12884 KB] g=35, 1059 evaluated, 1058 expanded, 12 reopened
-[t=0.223935s, 13280 KB] New best heuristic value for ff: 21
-[t=0.227929s, 13280 KB] g=30, 4848 evaluated, 4847 expanded, 559 reopened
-[t=0.227929s, 13280 KB] New best heuristic value for ff: 20
-[t=0.227929s, 13280 KB] g=36, 4903 evaluated, 4902 expanded, 559 reopened
-[t=0.227929s, 13280 KB] New best heuristic value for ff: 19
-[t=0.227929s, 13280 KB] g=37, 4904 evaluated, 4903 expanded, 559 reopened
-[t=0.227929s, 13280 KB] New best heuristic value for ff: 13
-[t=0.227929s, 13280 KB] g=38, 4905 evaluated, 4904 expanded, 559 reopened
-[t=0.235929s, 13280 KB] New best heuristic value for ff: 7
-[t=0.235929s, 13280 KB] g=50, 5236 evaluated, 5235 expanded, 563 reopened
-[t=0.235929s, 13280 KB] New best heuristic value for ff: 0
-[t=0.235929s, 13280 KB] g=59, 5396 evaluated, 5395 expanded, 573 reopened
-[t=0.235929s, 13280 KB] Solution found!
-[t=0.235929s, 13280 KB] Actual search time: 0.107997s
-move-down-slow slow1-0 n6 n5 (6)
-board p0 slow0-0 n1 n0 n1 (0)
-move-down-slow slow0-0 n1 n0 (6)
-board p3 slow0-0 n0 n1 n2 (0)
-move-up-slow slow0-0 n0 n4 (9)
-leave p0 slow0-0 n4 n2 n1 (0)
-board p2 slow0-0 n4 n1 n2 (0)
-leave p3 slow0-0 n4 n2 n1 (0)
-move-down-slow slow0-0 n4 n0 (9)
-leave p2 slow0-0 n0 n1 n0 (0)
-board p4 slow0-0 n0 n0 n1 (0)
-move-up-slow slow0-0 n0 n3 (8)
-move-down-slow slow1-0 n5 n4 (6)
-board p0 slow1-0 n4 n0 n1 (0)
-board p3 slow1-0 n4 n1 n2 (0)
-move-up-slow slow1-0 n4 n7 (8)
-leave p0 slow1-0 n7 n2 n1 (0)
-board p1 slow1-0 n7 n1 n2 (0)
-move-down-slow slow1-0 n7 n5 (7)
-leave p1 slow1-0 n5 n2 n1 (0)
-leave p3 slow1-0 n5 n1 n0 (0)
-leave p4 slow0-0 n3 n1 n0 (0)
-[t=0.235929s, 13280 KB] Plan length: 22 step(s).
-[t=0.235929s, 13280 KB] Plan cost: 59
-[t=0.235929s, 13280 KB] Expanded 5402 state(s).
-[t=0.235929s, 13280 KB] Reopened 573 state(s).
-[t=0.235929s, 13280 KB] Evaluated 5403 state(s).
-[t=0.235929s, 13280 KB] Evaluations: 4830
-[t=0.235929s, 13280 KB] Generated 99848 state(s).
-[t=0.235929s, 13280 KB] Dead ends: 0 state(s).
-[t=0.235929s, 13280 KB] Number of registered states: 4830
-[t=0.235929s, 13280 KB] Int hash set load factor: 4830/8192 = 0.589600
-[t=0.235929s, 13280 KB] Int hash set resizes: 13
-[t=0.235929s, 13280 KB] Best solution cost so far: 59
-[t=0.235929s, 13280 KB] Solution found - keep searching
-[t=0.235929s, 13280 KB] Simplifying 1080 unary operators... done! [1080 unary operators]
-[t=0.235929s, 13280 KB] time to simplify: 0.004000s
-[t=0.239930s, 13280 KB] Initializing additive heuristic...
-[t=0.239930s, 13280 KB] Initializing FF heuristic...
-[t=0.239930s, 13280 KB] Building successor generator... done!
-[t=0.239930s, 13280 KB] peak memory difference for successor generator creation: 0 KB
-[t=0.239930s, 13280 KB] time for successor generation creation: 0.000000s
-[t=0.239930s, 13280 KB] Variables: 13
-[t=0.239930s, 13280 KB] FactPairs: 99
-[t=0.239930s, 13280 KB] Bytes per state: 8
-[t=0.239930s, 13280 KB] Starting search: lazy_wastar
-[t=0.239930s, 13280 KB] Conducting lazy best first search, (real) bound = 59
-[t=0.239930s, 13280 KB] New best heuristic value for ff: 40
-[t=0.239930s, 13280 KB] g=0, 1 evaluated, 0 expanded
-[t=0.239930s, 13280 KB] Initial heuristic value for ff: 40
-[t=0.239930s, 13280 KB] New best heuristic value for ff: 35
-[t=0.239930s, 13280 KB] g=7, 2 evaluated, 1 expanded
-[t=0.239930s, 13280 KB] New best heuristic value for ff: 34
-[t=0.239930s, 13280 KB] g=6, 3 evaluated, 2 expanded
-[t=0.239930s, 13280 KB] New best heuristic value for ff: 33
-[t=0.239930s, 13280 KB] g=7, 37 evaluated, 36 expanded
-[t=0.239930s, 13280 KB] New best heuristic value for ff: 30
-[t=0.239930s, 13280 KB] g=12, 47 evaluated, 46 expanded
-[t=0.239930s, 13280 KB] New best heuristic value for ff: 27
-[t=0.239930s, 13280 KB] g=13, 49 evaluated, 48 expanded
-[t=0.271942s, 13280 KB] New best heuristic value for ff: 26
-[t=0.271942s, 13280 KB] g=45, 1648 evaluated, 1647 expanded
-[t=0.279935s, 13280 KB] New best heuristic value for ff: 22
-[t=0.279935s, 13280 KB] g=28, 1956 evaluated, 1955 expanded
-[t=0.387933s, 13548 KB] New best heuristic value for ff: 21
-[t=0.387933s, 13548 KB] g=27, 6490 evaluated, 6489 expanded, 3 reopened
-[t=0.419935s, 13812 KB] New best heuristic value for ff: 15
-[t=0.419935s, 13812 KB] g=34, 7632 evaluated, 7631 expanded, 6 reopened
-[t=0.535929s, 14736 KB] New best heuristic value for ff: 13
-[t=0.535929s, 14736 KB] g=38, 12810 evaluated, 12809 expanded, 76 reopened
-[t=0.539930s, 14736 KB] New best heuristic value for ff: 8
-[t=0.539930s, 14736 KB] g=43, 12837 evaluated, 12836 expanded, 76 reopened
-[t=0.571935s, 14992 KB] New best heuristic value for ff: 7
-[t=0.571935s, 14992 KB] g=45, 14726 evaluated, 14725 expanded, 90 reopened
-[t=0.655967s, 15784 KB] New best heuristic value for ff: 6
-[t=0.655967s, 15784 KB] g=54, 18910 evaluated, 18909 expanded, 243 reopened
-[t=0.655967s, 15784 KB] New best heuristic value for ff: 0
-[t=0.655967s, 15784 KB] g=53, 18911 evaluated, 18910 expanded, 243 reopened
-[t=0.659933s, 15784 KB] Solution found!
-[t=0.659933s, 15784 KB] Actual search time: 0.420003s
-board p0 slow0-0 n1 n0 n1 (0)
-move-up-slow slow0-0 n1 n4 (8)
-leave p0 slow0-0 n4 n1 n0 (0)
-board p2 slow0-0 n4 n0 n1 (0)
-move-down-slow slow0-0 n4 n0 (9)
-leave p2 slow0-0 n0 n1 n0 (0)
-board p3 slow0-0 n0 n0 n1 (0)
-board p4 slow0-0 n0 n1 n2 (0)
-move-up-slow slow0-0 n0 n3 (8)
-leave p4 slow0-0 n3 n2 n1 (0)
-move-up-slow slow0-0 n3 n4 (6)
-leave p3 slow0-0 n4 n1 n0 (0)
-move-down-slow slow1-0 n6 n4 (7)
-board p0 slow1-0 n4 n0 n1 (0)
-board p3 slow1-0 n4 n1 n2 (0)
-move-up-slow slow1-0 n4 n7 (8)
-leave p0 slow1-0 n7 n2 n1 (0)
-board p1 slow1-0 n7 n1 n2 (0)
-move-down-slow slow1-0 n7 n5 (7)
-leave p1 slow1-0 n5 n2 n1 (0)
-leave p3 slow1-0 n5 n1 n0 (0)
-[t=0.659933s, 15784 KB] Plan length: 21 step(s).
-[t=0.659933s, 15784 KB] Plan cost: 53
-[t=0.659933s, 15784 KB] Expanded 19156 state(s).
-[t=0.659933s, 15784 KB] Reopened 253 state(s).
-[t=0.659933s, 15784 KB] Evaluated 19157 state(s).
-[t=0.659933s, 15784 KB] Evaluations: 18904
-[t=0.659933s, 15784 KB] Generated 364454 state(s).
-[t=0.659933s, 15784 KB] Dead ends: 0 state(s).
-[t=0.659933s, 15784 KB] Number of registered states: 18904
-[t=0.659933s, 15784 KB] Int hash set load factor: 18904/32768 = 0.576904
-[t=0.659933s, 15784 KB] Int hash set resizes: 15
-[t=0.659933s, 15784 KB] Best solution cost so far: 53
-[t=0.659933s, 15784 KB] Solution found - keep searching
-[t=0.659933s, 15784 KB] Actual search time: 0.651995s
-[t=0.659933s, 15784 KB] Cumulative statistics:
-[t=0.659933s, 15784 KB] Expanded 29903 state(s).
-[t=0.659933s, 15784 KB] Reopened 1038 state(s).
-[t=0.659933s, 15784 KB] Evaluated 29907 state(s).
-[t=0.659933s, 15784 KB] Evaluations: 28869
-[t=0.659933s, 15784 KB] Generated 564582 state(s).
-[t=0.663933s, 15784 KB] Dead ends: 0 state(s).
-[t=0.663933s, 15784 KB] Search time: 0.651995s
-[t=0.663933s, 15784 KB] Plan improvement time: 0.000000s
-[t=0.663933s, 15784 KB] Total time: 0.663933s
-Solution found.
-Peak memory: 15784 KB
-Remove intermediate file output.sas
-search exit code: 0
-
-INFO     Running validate.
-INFO     validate stdin: None
-INFO     validate time limit: None
-INFO     validate memory limit: None
-INFO     validate command line string: /home/tobia/bin/validate domain.pddl problem.pddl sas_plan.1 sas_plan.2 sas_plan.3 sas_plan.4
-Checking plan: sas_plan.1
-Plan executed successfully - checking goal
-Plan valid
-Final value: 64 
-Checking plan: sas_plan.2
-Plan executed successfully - checking goal
-Plan valid
-Final value: 60 
-Checking plan: sas_plan.3
-Plan executed successfully - checking goal
-Plan valid
-Final value: 59 
-Checking plan: sas_plan.4
-Plan executed successfully - checking goal
-Plan valid
-Final value: 53 
-
-Successful plans:
-Value: 53
- sas_plan.4 53 
-
-Value: 59
- sas_plan.3 59 
-
-Value: 60
- sas_plan.2 60 
-
-Value: 64
- sas_plan.1 64 
-
-validate exit code: 0
-
-INFO     Planner time: 1.05s

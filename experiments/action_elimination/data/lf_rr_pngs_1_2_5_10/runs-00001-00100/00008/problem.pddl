@@ -1,1 +1,0 @@
-../../../../../../../benchmarks/elevators-sat08-strips/p02.pddl

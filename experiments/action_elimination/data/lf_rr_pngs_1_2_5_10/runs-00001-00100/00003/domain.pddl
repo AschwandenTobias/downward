@@ -1,1 +1,0 @@
-../../../../../../../benchmarks/elevators-sat08-strips/domain.pddl

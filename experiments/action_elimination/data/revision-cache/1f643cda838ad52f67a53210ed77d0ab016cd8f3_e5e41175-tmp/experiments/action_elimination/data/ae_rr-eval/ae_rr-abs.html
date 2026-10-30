@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ae_rr-abs</title>
+<meta name="generator" content="https://txt2tags.org">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+blockquote{margin: 1em 2em; border-left: 2px solid #999;
+  font-style: oblique; padding-left: 1em;}
+blockquote:first-letter{margin: .2em .1em .1em 0; font-size: 160%; font-weight: bold;}
+blockquote:first-line{font-weight: bold;}
+body{font-family: sans-serif;}
+hr{background-color:#000;border:0;color:#000;}
+hr.heavy{height:2px;}
+hr.light{height:1px;}
+img{border:0;display:block;}
+img.right{margin:0 0 0 auto;}
+img.center{border:0;margin:0 auto;}
+table{border-collapse: collapse;}
+table th,table td{padding: 3px 7px 2px 7px;}
+table th{background-color: lightgrey;}
+table.center{margin-left:auto; margin-right:auto;}
+.center{text-align:center;}
+.right{text-align:right;}
+.left{text-align:left;}
+.tableborder,.tableborder td,.tableborder th{border:1px solid #000;}
+.underline{text-decoration:underline;}
+</style>
+<style type="text/css">
+    body {
+        font-family: Ubuntu, Helvetica, Arial, sans-serif;
+    }
+    table {
+        border-collapse: collapse;
+    }
+    table th {
+        text-align: left;
+        padding-top: 5px;
+        padding-bottom: 4px;
+        background-color: #aaa;
+        color: #ffffff;
+        /* Make table headers sticky. */
+        position: sticky;
+        top: 0;
+    }
+</style>
+<script type="text/javascript">
+function toggle_element(element) {
+    if (element.style.display == "none") {
+        element.style.display = "";
+    } else {
+        element.style.display = "none";
+    }
+}
+
+function find_next(element, classname) {
+    element = element.nextSibling;
+    while(element.nodeName != classname)
+        element = element.nextSibling;
+    return element;
+}
+
+function toggle_table(toggle_button) {
+    var table = find_next(toggle_button, "TABLE");
+    toggle_element(table);
+    if (toggle_button.innerHTML == "Show table") {
+        toggle_button.innerHTML = "Hide table";
+    } else {
+        toggle_button.innerHTML = "Show table";
+    }
+}
+
+function show_table(section) {
+    heading = section.children[0];
+    var toggle_button = find_next(heading, "BUTTON");
+    var table = find_next(toggle_button, "TABLE");
+    table.style.display = "";
+    toggle_button.innerHTML = "Hide table";
+}
+
+function show_all_tables_in_section(section_id) {
+    var section = document.getElementById(section_id);
+    if (!section) return;
+
+    var tables = section.getElementsByTagName('table');
+    var buttons = section.getElementsByClassName('toggle-table');
+
+    for (var i = 0; i < tables.length; i++) {
+        tables[i].style.display = "";
+    }
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].innerHTML = "Hide table";
+    }
+}
+
+function hide_all_tables_in_section(section_id) {
+    var section = document.getElementById(section_id);
+    if (!section) return;
+
+    var tables = section.getElementsByTagName('table');
+    var buttons = section.getElementsByClassName('toggle-table');
+
+    for (var i = 0; i < tables.length; i++) {
+        tables[i].style.display = "none";
+    }
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].innerHTML = "Show table";
+    }
+}
+
+function show_main_tables() {
+    var names = ["unexplained-errors", "info", "summary"];
+    for (var i = 0; i < names.length; i++) {
+        var section = document.getElementById(names[i]);
+        try {
+            show_table(section);
+        } catch (e) {
+            console.log("No table found for " + names[i]);
+        }
+    }
+
+    // If there is only one table, show it and hide the button.
+    var buttons = document.getElementsByTagName('button');
+    var tables = document.getElementsByTagName('table');
+    if (buttons.length == 1 && tables.length == 1) {
+        tables[0].style.display = "";
+        buttons[0].style.display = "none";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", show_main_tables);
+</script>
+</head>
+<body>
+<header>
+<hgroup>
+<h1>ae_rr-abs</h1>
+<h3>2026-10-30</h3>
+</hgroup>
+</header>
+
+
+<div class="body">
+
+<ul>
+<li><strong><a href="#unexplained-errors" onclick="show_table(document.getElementById('unexplained-errors'));">Unexplained Errors</a></strong>
+</li>
+<li><strong><a href="#info" onclick="show_table(document.getElementById('info'));">Info</a></strong>
+</li>
+<li><strong><a href="#summary" onclick="show_table(document.getElementById('summary'));">Summary</a></strong>
+</li>
+<li><strong><a href="#algorithm" onclick="show_table(document.getElementById('algorithm'));">algorithm</a></strong>
+  <ul>
+  <li><a href="#algorithm-blocks" onclick="show_table(document.getElementById('algorithm-blocks'));">blocks</a> <a href="#algorithm-elevators-sat08-strips" onclick="show_table(document.getElementById('algorithm-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#anytime_plan_costs" onclick="show_table(document.getElementById('anytime_plan_costs'));">anytime_plan_costs</a></strong>
+  <ul>
+  <li><a href="#anytime_plan_costs-blocks" onclick="show_table(document.getElementById('anytime_plan_costs-blocks'));">blocks</a> <a href="#anytime_plan_costs-elevators-sat08-strips" onclick="show_table(document.getElementById('anytime_plan_costs-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#anytime_plan_times" onclick="show_table(document.getElementById('anytime_plan_times'));">anytime_plan_times</a></strong>
+  <ul>
+  <li><a href="#anytime_plan_times-blocks" onclick="show_table(document.getElementById('anytime_plan_times-blocks'));">blocks</a> <a href="#anytime_plan_times-elevators-sat08-strips" onclick="show_table(document.getElementById('anytime_plan_times-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#cost" onclick="show_table(document.getElementById('cost'));">cost</a></strong>
+  <ul>
+  <li><a href="#cost-blocks" onclick="show_table(document.getElementById('cost-blocks'));">blocks</a> <a href="#cost-elevators-sat08-strips" onclick="show_table(document.getElementById('cost-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#coverage" onclick="show_table(document.getElementById('coverage'));">coverage</a></strong>
+  <ul>
+  <li><a href="#coverage-blocks" onclick="show_table(document.getElementById('coverage-blocks'));">blocks</a> <a href="#coverage-elevators-sat08-strips" onclick="show_table(document.getElementById('coverage-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#domain" onclick="show_table(document.getElementById('domain'));">domain</a></strong>
+  <ul>
+  <li><a href="#domain-blocks" onclick="show_table(document.getElementById('domain-blocks'));">blocks</a> <a href="#domain-elevators-sat08-strips" onclick="show_table(document.getElementById('domain-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#error" onclick="show_table(document.getElementById('error'));">error</a></strong>
+  <ul>
+  <li><a href="#error-error-search-input-error" onclick="show_table(document.getElementById('error-error-search-input-error'));">error-search-input-error</a> <a href="#error-error-success" onclick="show_table(document.getElementById('error-error-success'));">error-success</a> <a href="#error-blocks" onclick="show_table(document.getElementById('error-blocks'));">blocks</a> <a href="#error-elevators-sat08-strips" onclick="show_table(document.getElementById('error-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#final_plan_cost" onclick="show_table(document.getElementById('final_plan_cost'));">final_plan_cost</a></strong>
+  <ul>
+  <li><a href="#final_plan_cost-blocks" onclick="show_table(document.getElementById('final_plan_cost-blocks'));">blocks</a> <a href="#final_plan_cost-elevators-sat08-strips" onclick="show_table(document.getElementById('final_plan_cost-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#first_plan_cost" onclick="show_table(document.getElementById('first_plan_cost'));">first_plan_cost</a></strong>
+  <ul>
+  <li><a href="#first_plan_cost-blocks" onclick="show_table(document.getElementById('first_plan_cost-blocks'));">blocks</a> <a href="#first_plan_cost-elevators-sat08-strips" onclick="show_table(document.getElementById('first_plan_cost-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#memory" onclick="show_table(document.getElementById('memory'));">memory</a></strong>
+  <ul>
+  <li><a href="#memory-blocks" onclick="show_table(document.getElementById('memory-blocks'));">blocks</a> <a href="#memory-elevators-sat08-strips" onclick="show_table(document.getElementById('memory-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#num_plans" onclick="show_table(document.getElementById('num_plans'));">num_plans</a></strong>
+  <ul>
+  <li><a href="#num_plans-blocks" onclick="show_table(document.getElementById('num_plans-blocks'));">blocks</a> <a href="#num_plans-elevators-sat08-strips" onclick="show_table(document.getElementById('num_plans-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+<li><strong><a href="#problem" onclick="show_table(document.getElementById('problem'));">problem</a></strong>
+  <ul>
+  <li><a href="#problem-blocks" onclick="show_table(document.getElementById('problem-blocks'));">blocks</a> <a href="#problem-elevators-sat08-strips" onclick="show_table(document.getElementById('problem-elevators-sat08-strips'));">elevators-sat08-strips</a>
+  </li>
+  </ul>
+</li>
+</ul>
+
+<section~A~>
+<h1></h1>
+<section id="unexplained-errors">
+<h2>unexplained-errors</h2>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+<table class="tableborder" style="display:none">
+<tr>
+<th>Unexplained errors</th> <th>algorithm</th> <th>domain</th> <th>problem</th> <th>error</th> <th>planner_wall_clock_time</th> <th>raw_memory</th> <th>node</th> <th>run_dir</th>
+</tr>
+<tr>
+<td rowspan="6">['search-input-error',&nbsp;"run.err:&nbsp;Traceback:<br />&nbsp;&nbsp;Start&nbsp;semantic&nbsp;analysis<br />&nbsp;&nbsp;->&nbsp;Checking&nbsp;Plugin:&nbsp;plan_improvement<br />&nbsp;&nbsp;->&nbsp;Checking&nbsp;the&nbsp;keyword&nbsp;argument&nbsp;'method'.<br /><br />No&nbsp;feature&nbsp;defined&nbsp;for&nbsp;FunctionCallNode&nbsp;'reconnection_reduction'.<br />Usage&nbsp;error&nbsp;occurred.<br />"]</td>
+<td>2_lf_rr</td> <td>blocks</td> <td>probBLOCKS-15-0.pddl</td> <td>search-input-error</td> <td>0.47</td> <td>12180</td> <td>LAPTOP-TE7K6OT2</td> <td>runs-00001-00100/00009</td>
+</tr>
+<tr><td>2_lf_rr</td> <td>blocks</td> <td>probBLOCKS-4-0.pddl</td> <td>search-input-error</td> <td>0.41</td> <td>11912</td> <td>LAPTOP-TE7K6OT2</td> <td>runs-00001-00100/00007</td></tr>
+<tr><td>2_lf_rr</td> <td>blocks</td> <td>probBLOCKS-5-0.pddl</td> <td>search-input-error</td> <td>0.38</td> <td>11912</td> <td>LAPTOP-TE7K6OT2</td> <td>runs-00001-00100/00008</td></tr>
+<tr><td>2_lf_rr</td> <td>elevators-sat08-strips</td> <td>p01.pddl</td> <td>search-input-error</td> <td>0.43</td> <td>12044</td> <td>LAPTOP-TE7K6OT2</td> <td>runs-00001-00100/00010</td></tr>
+<tr><td>2_lf_rr</td> <td>elevators-sat08-strips</td> <td>p02.pddl</td> <td>search-input-error</td> <td>0.44</td> <td>12044</td> <td>LAPTOP-TE7K6OT2</td> <td>runs-00001-00100/00011</td></tr>
+<tr><td>2_lf_rr</td> <td>elevators-sat08-strips</td> <td>p23.pddl</td> <td>search-input-error</td> <td>0.94</td> <td>13780</td> <td>LAPTOP-TE7K6OT2</td> <td>runs-00001-00100/00012</td></tr>
+</table>
+
+</section>
+<section id="info">
+<h2>info</h2>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>algorithm</th>
+<th>local_<wbr>revision</th>
+<th>global_<wbr>revision</th>
+<th>driver_<wbr>options</th>
+<th>component_<wbr>options</th>
+</tr>
+<tr>
+<td>1_lf_ae</td>
+<td>reconnection_reduction</td>
+<td>9f194e2bf547bfdad0614ea09f774269690a1efa</td>
+<td>['--validate', '--overall-time-limit', '30m', '--overall-memory-limit', '3584M', '--overall-time-limit', '1m', '--overall-memory-limit', '1G']</td>
+<td>['--search', 'plan_improvement(search=let(hlm,eval_modify_costs(landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),pref=false),cost_type=one),let(hff,eval_modify_costs(ff(),cost_type=one),lazy_greedy([hff,hlm],preferred=[hff,hlm],cost_type=one,reopen_closed=false))),method=action_elimination())']</td>
+</tr>
+<tr>
+<td>2_lf_rr</td>
+<td>reconnection_reduction</td>
+<td>9f194e2bf547bfdad0614ea09f774269690a1efa</td>
+<td>['--validate', '--overall-time-limit', '30m', '--overall-memory-limit', '3584M', '--overall-time-limit', '1m', '--overall-memory-limit', '1G']</td>
+<td>['--search', 'plan_improvement(search=let(hlm,eval_modify_costs(landmark_sum(lm_factory=lm_reasonable_orders_hps(lm_rhw()),pref=false),cost_type=one),let(hff,eval_modify_costs(ff(),cost_type=one),lazy_greedy([hff,hlm],preferred=[hff,hlm],cost_type=one,reopen_closed=false))),method=reconnection_reduction())']</td>
+</tr>
+</table>
+
+<p>
+Used nodes: [LAPTOP-TE7K6OT2]
+</p>
+
+</section>
+<section id="summary">
+<h2>summary</h2>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>Summary</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#cost" onclick="show_table(document.getElementById('cost'));">cost - Sum</a></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#coverage" onclick="show_table(document.getElementById('coverage'));">coverage - Sum</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">6</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td><a href="#error-error-search-input-error" onclick="show_table(document.getElementById('error-error-search-input-error'));">error-search-input-error - Sum</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">0</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">6</span></td>
+</tr>
+<tr>
+<td><a href="#error-error-success" onclick="show_table(document.getElementById('error-error-success'));">error-success - Sum</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">6</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td><a href="#final_plan_cost" onclick="show_table(document.getElementById('final_plan_cost'));">final_plan_cost - Sum</a></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#first_plan_cost" onclick="show_table(document.getElementById('first_plan_cost'));">first_plan_cost - Sum</a></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#memory" onclick="show_table(document.getElementById('memory'));">memory - Sum</a></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#num_plans" onclick="show_table(document.getElementById('num_plans'));">num_plans - Sum</a></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+<section id="algorithm">
+<h2>algorithm</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('algorithm')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('algorithm')">Hide all tables</button>
+</p>
+<p>
+Per-domain reports only support numeric attributes, but algorithm has type str.
+</p>
+
+<section id="algorithm-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>algorithm</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td>1_lf_ae</td>
+<td>2_lf_rr</td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td>1_lf_ae</td>
+<td>2_lf_rr</td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td>1_lf_ae</td>
+<td>2_lf_rr</td>
+</tr>
+</table>
+
+</section>
+<section id="algorithm-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>algorithm</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td>1_lf_ae</td>
+<td>2_lf_rr</td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td>1_lf_ae</td>
+<td>2_lf_rr</td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td>1_lf_ae</td>
+<td>2_lf_rr</td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="anytime_plan_costs">
+<h2>anytime_plan_costs</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('anytime_plan_costs')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('anytime_plan_costs')">Hide all tables</button>
+</p>
+<p>
+Per-domain reports only support numeric attributes, but anytime_plan_costs has type list.
+</p>
+
+<section id="anytime_plan_costs-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>anytime_<wbr>plan_<wbr>costs</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td>[6]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td>[12]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td>[60]</td>
+<td class="right">None</td>
+</tr>
+</table>
+
+</section>
+<section id="anytime_plan_costs-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>anytime_<wbr>plan_<wbr>costs</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td>[66]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td>[103]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td>[502]</td>
+<td class="right">None</td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="anytime_plan_times">
+<h2>anytime_plan_times</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('anytime_plan_times')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('anytime_plan_times')">Hide all tables</button>
+</p>
+<p>
+Per-domain reports only support numeric attributes, but anytime_plan_times has type list.
+</p>
+
+<section id="anytime_plan_times-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>anytime_<wbr>plan_<wbr>times</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td>[0.004009]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td>[0.008111]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td>[0.044394]</td>
+<td class="right">None</td>
+</tr>
+</table>
+
+</section>
+<section id="anytime_plan_times-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>anytime_<wbr>plan_<wbr>times</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td>[0.03156]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td>[0.031927]</td>
+<td class="right">None</td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td>[0.30728]</td>
+<td class="right">None</td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="cost">
+<h2>cost</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('cost')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('cost')">Hide all tables</button>
+</p>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#cost-blocks" onclick="show_table(document.getElementById('cost-blocks'));">blocks</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#cost-elevators-sat08-strips" onclick="show_table(document.getElementById('cost-elevators-sat08-strips'));">elevators-sat08-strips</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+<p>
+Only tasks where all algorithms have a value for "cost" are considered. Each table entry gives the sum of "cost" for that domain. The bottom row reports the sum across all domains.
+</p>
+
+<section id="cost-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">6.00</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12.00</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">60.00</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+<section id="cost-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">66.00</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">103.00</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">502.00</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="coverage">
+<h2>coverage</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('coverage')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('coverage')">Hide all tables</button>
+</p>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>coverage</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#coverage-blocks" onclick="show_table(document.getElementById('coverage-blocks'));">blocks</a> (3)</td>
+<td class="right"><span style="color:rgb(0,178,0)">3</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td><a href="#coverage-elevators-sat08-strips" onclick="show_table(document.getElementById('coverage-elevators-sat08-strips'));">elevators-sat08-strips</a> (3)</td>
+<td class="right"><span style="color:rgb(0,178,0)">3</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td><strong>Sum (6)</strong></td>
+<td class="right"><span style="color:rgb(0,178,0)">6</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+</table>
+
+<p>
+The bottom row reports the sum across all domains.
+</p>
+
+<section id="coverage-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>coverage</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+</table>
+
+</section>
+<section id="coverage-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>coverage</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="domain">
+<h2>domain</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('domain')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('domain')">Hide all tables</button>
+</p>
+<p>
+Per-domain reports only support numeric attributes, but domain has type str.
+</p>
+
+<section id="domain-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>domain</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td>blocks</td>
+<td>blocks</td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td>blocks</td>
+<td>blocks</td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td>blocks</td>
+<td>blocks</td>
+</tr>
+</table>
+
+</section>
+<section id="domain-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>domain</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td>elevators-sat08-strips</td>
+<td>elevators-sat08-strips</td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td>elevators-sat08-strips</td>
+<td>elevators-sat08-strips</td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td>elevators-sat08-strips</td>
+<td>elevators-sat08-strips</td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="error">
+<h2>error</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('error')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('error')">Hide all tables</button>
+</p>
+
+<section id="error-error-search-input-error">
+<h3>error-search-input-error</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>error-search-input-error</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#error-blocks" onclick="show_table(document.getElementById('error-blocks'));">blocks</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">0</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">3</span></td>
+</tr>
+<tr>
+<td><a href="#error-elevators-sat08-strips" onclick="show_table(document.getElementById('error-elevators-sat08-strips'));">elevators-sat08-strips</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">0</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">3</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(0,178,0)">0</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">6</span></td>
+</tr>
+</table>
+
+</section>
+<section id="error-error-success">
+<h3>error-success</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>error-success</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#error-blocks" onclick="show_table(document.getElementById('error-blocks'));">blocks</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">3</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td><a href="#error-elevators-sat08-strips" onclick="show_table(document.getElementById('error-elevators-sat08-strips'));">elevators-sat08-strips</a></td>
+<td class="right"><span style="color:rgb(0,178,0)">3</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(0,178,0)">6</span></td>
+<td class="right"><span style="color:rgb(0,0,178)">0</span></td>
+</tr>
+</table>
+
+</section>
+<section id="error-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>error</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td>success</td>
+<td>search-input-error</td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td>success</td>
+<td>search-input-error</td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td>success</td>
+<td>search-input-error</td>
+</tr>
+</table>
+
+</section>
+<section id="error-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>error</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td>success</td>
+<td>search-input-error</td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td>success</td>
+<td>search-input-error</td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td>success</td>
+<td>search-input-error</td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="final_plan_cost">
+<h2>final_plan_cost</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('final_plan_cost')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('final_plan_cost')">Hide all tables</button>
+</p>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>final_<wbr>plan_<wbr>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#final_plan_cost-blocks" onclick="show_table(document.getElementById('final_plan_cost-blocks'));">blocks</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#final_plan_cost-elevators-sat08-strips" onclick="show_table(document.getElementById('final_plan_cost-elevators-sat08-strips'));">elevators-sat08-strips</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+<p>
+Only tasks where all algorithms have a value for "final_plan_cost" are considered. Each table entry gives the sum of "final_plan_cost" for that domain. The bottom row reports the sum across all domains.
+</p>
+
+<section id="final_plan_cost-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>final_<wbr>plan_<wbr>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">6</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">60</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+<section id="final_plan_cost-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>final_<wbr>plan_<wbr>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">66</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">103</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">502</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="first_plan_cost">
+<h2>first_plan_cost</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('first_plan_cost')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('first_plan_cost')">Hide all tables</button>
+</p>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>first_<wbr>plan_<wbr>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#first_plan_cost-blocks" onclick="show_table(document.getElementById('first_plan_cost-blocks'));">blocks</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#first_plan_cost-elevators-sat08-strips" onclick="show_table(document.getElementById('first_plan_cost-elevators-sat08-strips'));">elevators-sat08-strips</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+<p>
+Only tasks where all algorithms have a value for "first_plan_cost" are considered. Each table entry gives the sum of "first_plan_cost" for that domain. The bottom row reports the sum across all domains.
+</p>
+
+<section id="first_plan_cost-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>first_<wbr>plan_<wbr>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">6</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">60</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+<section id="first_plan_cost-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>first_<wbr>plan_<wbr>cost</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">66</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">103</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">502</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="memory">
+<h2>memory</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('memory')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('memory')">Hide all tables</button>
+</p>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>memory</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#memory-blocks" onclick="show_table(document.getElementById('memory-blocks'));">blocks</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#memory-elevators-sat08-strips" onclick="show_table(document.getElementById('memory-elevators-sat08-strips'));">elevators-sat08-strips</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+<p>
+Only tasks where all algorithms have a value for "memory" are considered. Each table entry gives the sum of "memory" for that domain. The bottom row reports the sum across all domains.
+</p>
+
+<section id="memory-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>memory</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12044</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12048</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12752</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+<section id="memory-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>memory</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12312</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">12332</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">17960</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="num_plans">
+<h2>num_plans</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('num_plans')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('num_plans')">Hide all tables</button>
+</p>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>num_<wbr>plans</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td><a href="#num_plans-blocks" onclick="show_table(document.getElementById('num_plans-blocks'));">blocks</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><a href="#num_plans-elevators-sat08-strips" onclick="show_table(document.getElementById('num_plans-elevators-sat08-strips'));">elevators-sat08-strips</a> (0)</td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td><strong>Sum</strong></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+<p>
+Only tasks where all algorithms have a value for "num_plans" are considered. Each table entry gives the sum of "num_plans" for that domain. The bottom row reports the sum across all domains.
+</p>
+
+<section id="num_plans-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>num_<wbr>plans</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+<section id="num_plans-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>num_<wbr>plans</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td class="right"><span style="color:rgb(0,178,0)">1</span></td>
+<td class="right"><span style="color:rgb(127,127,127)">None</span></td>
+</tr>
+</table>
+
+</section>
+</section>
+<section id="problem">
+<h2>problem</h2>
+
+<p>
+<button type="button" onclick="show_all_tables_in_section('problem')">Show all tables</button> <button type="button" onclick="hide_all_tables_in_section('problem')">Hide all tables</button>
+</p>
+<p>
+Per-domain reports only support numeric attributes, but problem has type str.
+</p>
+
+<section id="problem-blocks">
+<h3>blocks</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>problem</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>probBLOCKS-4-0.pddl</td>
+<td>probBLOCKS-4-0.pddl</td>
+<td>probBLOCKS-4-0.pddl</td>
+</tr>
+<tr>
+<td>probBLOCKS-5-0.pddl</td>
+<td>probBLOCKS-5-0.pddl</td>
+<td>probBLOCKS-5-0.pddl</td>
+</tr>
+<tr>
+<td>probBLOCKS-15-0.pddl</td>
+<td>probBLOCKS-15-0.pddl</td>
+<td>probBLOCKS-15-0.pddl</td>
+</tr>
+</table>
+
+</section>
+<section id="problem-elevators-sat08-strips">
+<h3>elevators-sat08-strips</h3>
+
+<button type="button" class="toggle-table" onclick="toggle_table(this)">Show table</button><p></p>
+
+<table class="tableborder" style="display:none">
+<tr>
+<th>problem</th>
+<th>1_<wbr>lf_<wbr>ae</th>
+<th>2_<wbr>lf_<wbr>rr</th>
+</tr>
+<tr>
+<td>p01.pddl</td>
+<td>p01.pddl</td>
+<td>p01.pddl</td>
+</tr>
+<tr>
+<td>p02.pddl</td>
+<td>p02.pddl</td>
+<td>p02.pddl</td>
+</tr>
+<tr>
+<td>p23.pddl</td>
+<td>p23.pddl</td>
+<td>p23.pddl</td>
+</tr>
+</table>
+
+</section>
+</section>
+</section>
+</div>
+</body></html>

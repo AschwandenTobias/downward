@@ -34,6 +34,9 @@ public:
     bool operator!=(const StateID &other) const {
         return !(*this == other);
     }
+    int get_value() const {
+        return value;
+    }
 };
 
 #endif
